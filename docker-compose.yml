@@ -5,7 +5,7 @@ services:
   db:
     image: postgres:16.2-bullseye # we are using specific bullseye image for minimal DB size
     restart: always
-    container_name: dads_db
+    container_name: database
     # set shared memory limit when using docker-compose
     shm_size: 128mb
     env_file:
@@ -20,26 +20,26 @@ services:
       - 5432:5432
     expose:
       - ${DB_PORT_FOR_BACKEND}
-    # networks:
-    #   - backend_network
+    networks:
+      - backend_network
 
-  # backend:
-  #   build:
-  #     context: ./Backend
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   env_file:
-  #     - ./dockerConfig.env
-  #   container_name: dads_backend
-  #   ports:
-  #     - ${BACKEND_PORT}:${BACKEND_PORT}
-  #   networks:
-  #     - frontend_network
-  #     - backend_network
-  #   depends_on:
-  #     - db
-  #   expose:
-  #     - ${BACKEND_PORT}
+  backend:
+    build:
+      context: ./RealTimeSensorDataAnalyticsBackend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ./dockerConfig.env
+    container_name: backend
+    ports:
+      - 8080:8080
+    networks:
+      - frontend_network
+      - backend_network
+    depends_on:
+      - db
+    expose:
+      - 8080
 
 
   frontend:
@@ -52,14 +52,14 @@ services:
     container_name: analytics_frontend
     ports:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
-    # networks:
-    #   - frontend_network
-    #   - backend_network
+    networks:
+      - frontend_network
+      - backend_network
     expose:
       - ${FRONTEND_PORT}
     depends_on:
       - db
-      # - backend
+      - backend
 
 # volumes:
 #   pgdata:
@@ -69,6 +69,6 @@ services:
 #       o: 'bind'
 #       device: ./pgdata
 
-# networks:
-#   backend_network:
-#   frontend_network:
+networks:
+  backend_network:
+  frontend_network:
