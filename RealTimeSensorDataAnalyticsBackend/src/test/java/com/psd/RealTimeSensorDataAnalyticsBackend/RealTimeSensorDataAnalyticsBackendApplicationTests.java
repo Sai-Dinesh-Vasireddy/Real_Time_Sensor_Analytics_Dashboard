@@ -1,10 +1,10 @@
-package com.psd.RealTimeSensorDataAnalytics;
+package com.psd.RealTimeSensorDataAnalyticsBackend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RealTimeSensorDataAnalyticsApplicationTests {
+class RealTimeSensorDataAnalyticsBackendApplicationTests {
 
 	@Test
 	void contextLoads() {

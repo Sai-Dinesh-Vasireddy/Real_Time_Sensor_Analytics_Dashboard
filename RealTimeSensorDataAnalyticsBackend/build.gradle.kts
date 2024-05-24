@@ -16,8 +16,15 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
+	// implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	// implementation("org.springframework.boot:spring-boot-starter-websocket")
+	// implementation("org.apache.kafka:kafka-streams")
+	// implementation("org.springframework.kafka:spring-kafka")
+	// developmentOnly("org.springframework.boot:spring-boot-devtools")
+	// developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	// testImplementation("org.springframework.kafka:spring-kafka-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
