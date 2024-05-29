@@ -21,6 +21,7 @@ dependencies {
 	// implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("org.apache.kafka:kafka-streams")
 	implementation("org.springframework.kafka:spring-kafka")
+	implementation("org.springframework.integration:spring-integration-mqtt")
 	// developmentOnly("org.springframework.boot:spring-boot-devtools")
 	// developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
