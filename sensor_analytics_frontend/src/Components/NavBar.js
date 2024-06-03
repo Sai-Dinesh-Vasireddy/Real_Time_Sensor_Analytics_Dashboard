@@ -45,7 +45,7 @@ function NavBar() {
             <div className="dropdown-content">
               <Link to="/profile" className="dropdown-link">Profile</Link>
               <Link to="/settings" className="dropdown-link">Settings</Link>
-              <Link to="/logout" className="dropdown-link">Logout</Link>
+              <Link to="/" className="dropdown-link">Logout</Link>
             </div>
           )}
         </div>

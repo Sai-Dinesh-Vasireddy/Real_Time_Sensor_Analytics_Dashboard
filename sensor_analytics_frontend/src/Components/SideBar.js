@@ -10,7 +10,7 @@ function SideBar() {
       <Link to="/graphs" className="sidebar-link"><FaChartBar /></Link>
       <Link to="/profile" className="sidebar-link"><FaUser /></Link>
       <Link to="/settings" className="sidebar-link"><FaCog /></Link>
-      <Link to="/logout" className="sidebar-link"><FaSignOutAlt /></Link>
+      <Link to="/" className="sidebar-link"><FaSignOutAlt /></Link>
     </div>
   );
 }
