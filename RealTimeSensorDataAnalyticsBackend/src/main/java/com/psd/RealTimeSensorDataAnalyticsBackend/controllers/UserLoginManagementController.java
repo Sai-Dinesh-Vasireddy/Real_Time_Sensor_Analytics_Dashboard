@@ -8,9 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.Users;
-import com.psd.RealTimeSensorDataAnalyticsBackend.models.TokenReqRes;
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.TokenModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
@@ -39,7 +41,7 @@ public class UserLoginManagementController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> generateToken(@RequestBody TokenReqRes tokenReqRes){
+    public ResponseEntity<Object> generateToken(@RequestBody TokenModel tokenReqRes){
         Users databaseUser = userRepository.findByUsername(tokenReqRes.getUsername());
         if (databaseUser == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Sorry, User Does Not Exist");
@@ -48,7 +50,11 @@ public class UserLoginManagementController {
             String token = jwtTokenUtil.generateToken(tokenReqRes.getUsername());
             tokenReqRes.setToken(token);
             tokenReqRes.setExpirationTime("60 Min");
-            return ResponseEntity.ok(tokenReqRes);
+            Map<String, String> resultResponse = new HashMap<>();
+            resultResponse.put("username", tokenReqRes.getUsername());
+            resultResponse.put("expiryTime", tokenReqRes.getExpirationTime());
+            resultResponse.put("token", tokenReqRes.getToken());
+            return ResponseEntity.ok(resultResponse);
         }else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password Doesn't Match. Verify");
         }
@@ -56,11 +62,11 @@ public class UserLoginManagementController {
 
 
     @PostMapping("/validate-token")
-    public ResponseEntity<Object> validateToken(@RequestBody TokenReqRes tokenReqRes){
+    public ResponseEntity<Object> validateToken(@RequestBody TokenModel tokenReqRes){
         return ResponseEntity.ok(jwtTokenUtil.validateToken(tokenReqRes.getToken()));
     }
 
-    @GetMapping("/get-fruits")
+    @GetMapping("/test-login")
     public  ResponseEntity<Object> getAllFruits(@RequestHeader(value = "Authorization", required = false) String token){
         if (token == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token Is required to Proceed");
