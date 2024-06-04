@@ -29,6 +29,7 @@ public class UserLoginManagementController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody Users user){
         String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
@@ -40,6 +41,7 @@ public class UserLoginManagementController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User Not Saved, Internal Server Error. Please Try Again");
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/login")
     public ResponseEntity<Object> generateToken(@RequestBody TokenModel tokenReqRes){
         Users databaseUser = userRepository.findByUsername(tokenReqRes.getUsername());
@@ -60,12 +62,13 @@ public class UserLoginManagementController {
         }
     }
 
-
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/validate-token")
     public ResponseEntity<Object> validateToken(@RequestBody TokenModel tokenReqRes){
         return ResponseEntity.ok(jwtTokenUtil.validateToken(tokenReqRes.getToken()));
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/test-login")
     public  ResponseEntity<Object> getAllFruits(@RequestHeader(value = "Authorization", required = false) String token){
         if (token == null){
