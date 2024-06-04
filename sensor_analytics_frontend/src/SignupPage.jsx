@@ -1,5 +1,5 @@
 import React from 'react'
-import './Styles/SignupPage.css'
+import { Link } from 'react-router-dom'
 
 const SignupPage = () => {
   return (  
@@ -28,8 +28,7 @@ const SignupPage = () => {
         </div>
         <div className='Forgot-Password'>Already A Member ?<a href='/login'><span>Click Here!</span></a></div>
         <div className='Submit-Container'>
-            <div className='Submit1'>Sign Up</div>
-
+            <Link to='/dashboard'><button className='Submit'>Sign Up</button></Link>
         </div>
         
       

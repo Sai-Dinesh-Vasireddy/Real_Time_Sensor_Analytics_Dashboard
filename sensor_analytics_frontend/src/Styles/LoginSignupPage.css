@@ -7,13 +7,12 @@
     background-color: #f0f0f0; }
 
 
-.container,
-.SD {
+.container
+{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
     max-width: 400px;
     margin: 20px;
     padding: 20px;
@@ -21,10 +20,10 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
+
 }
-.container{
-    padding: 5px;
-}
+
+
 .Header {
     width: 100%;
     text-align: center;
@@ -86,7 +85,7 @@
 .Submit-Container {
     display: flex;
     justify-content: space-between;
-    width: 100%;
+    margin: auto;
 }
 
 .Submit, .Submit1 {
@@ -103,9 +102,10 @@
     transition: background-color 0.3s ease;
 }
 
-.Submit1 {
-    margin-left: 90px;
+.Submit{
+    position: relative;
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .Submit:hover {
@@ -118,13 +118,17 @@
 }
 
 .C1{
-    margin: 100px;
-    margin-left: 400px;
+    width: 25%;
+    height: 50%;
+    margin: auto;
+    margin-top: 10%;
     background: linear-gradient(to right, rgb(113, 113, 222), rgb(141, 214, 141));
-    margin-right: 350px;
     padding: 30px;
-    margin-top: 75px;
     box-shadow: 10px 10px 15px 5px grey;
-    
+    border-radius: 10px;
+}
+
+button {
+    width: 500px;
 }
 

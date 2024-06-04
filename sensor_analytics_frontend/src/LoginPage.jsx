@@ -1,6 +1,6 @@
 import React from 'react'
-import './Styles/LoginPage.css'
-
+import './Styles/LoginSignupPage.css'
+import { Link } from 'react-router-dom'
 
 const LoginPage = () => {
   return (
@@ -26,8 +26,7 @@ const LoginPage = () => {
         </div>
         <div className='Forgot-Password'>Not A Member ?<a href='/'><span>Click Here!</span></a></div>
         <div className='Submit-Container'>
-            <div className='Submit1'><a href='/dashboard'>Login</a></div>
-
+        <Link to='/dashboard'><button className='Submit'>Login</button></Link>
         </div>
         
       
