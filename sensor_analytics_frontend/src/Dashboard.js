@@ -30,8 +30,3 @@ function Dashboard() {
 export default Dashboard;
 
 
-{/* <Link to="/graphs" className="dash-link">
-        <div className='chartContainer'>
-            <Chart />
-        </div>
-      </Link> */}
