@@ -16,8 +16,15 @@ repositories {
 }
 
 dependencies {
-	// implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	runtimeOnly("org.postgresql:postgresql")
+	compileOnly("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok")
+	implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
+	implementation("org.springframework.security:spring-security-crypto:6.1.3")
 	// implementation("org.springframework.boot:spring-boot-starter-websocket")
 	//implementation("org.apache.kafka:kafka-streams")
 	//implementation("org.springframework.kafka:spring-kafka")
@@ -33,3 +40,9 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// tasks.withType<JavaCompile> {
+//     options.compilerArgs.add("-Xlint:-processing")
+//     options.isAnnotationProcessor = true
+// }
+

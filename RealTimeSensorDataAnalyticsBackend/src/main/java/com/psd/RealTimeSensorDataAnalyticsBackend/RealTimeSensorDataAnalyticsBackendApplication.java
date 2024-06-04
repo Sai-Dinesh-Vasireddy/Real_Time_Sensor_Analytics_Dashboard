@@ -14,7 +14,7 @@ import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
-import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttConfiguration;
+// import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttConfiguration;
 
 @SpringBootApplication
 public class RealTimeSensorDataAnalyticsBackendApplication {
@@ -23,8 +23,8 @@ public class RealTimeSensorDataAnalyticsBackendApplication {
 		ConfigurableApplicationContext context = new SpringApplicationBuilder(
 				RealTimeSensorDataAnalyticsBackendApplication.class)
 				.run(args);
-		MqttConfiguration gateway = context.getBean(MqttConfiguration.class);
-		gateway.sendToMqtt("foo");
+		// MqttConfiguration gateway = context.getBean(MqttConfiguration.class);
+		// gateway.sendToMqtt("foo");
 	}
 
 	// @Bean
