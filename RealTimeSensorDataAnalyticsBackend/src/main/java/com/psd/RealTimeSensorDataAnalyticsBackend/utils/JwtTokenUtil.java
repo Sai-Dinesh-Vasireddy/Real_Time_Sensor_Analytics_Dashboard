@@ -1,5 +1,6 @@
 package com.psd.RealTimeSensorDataAnalyticsBackend.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -25,6 +26,15 @@ public class JwtTokenUtil {
                 .setExpiration(expiryDate)
                 .signWith(secreteKey)
                 .compact();
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                            .setSigningKey(secreteKey)
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
+        return claims.getSubject(); // This retrieves the username from the token
     }
 
     public String validateToken(String token) {
