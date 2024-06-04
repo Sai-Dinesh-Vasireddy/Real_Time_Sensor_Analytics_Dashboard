@@ -15,6 +15,7 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.models.Users;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TokenModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
+import com.psd.RealTimeSensorDataAnalyticsBackend.constants.UserEnum;
 
 @Controller
 @RequestMapping
@@ -33,7 +34,18 @@ public class UserLoginManagementController {
     public ResponseEntity<Object> registerUser(@RequestBody Users user){
         String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
-        
+        user.setUserType(UserEnum.IS_USER.toString());
+        if (userRepository.save(user).getId()>0){
+            return ResponseEntity.ok("User Registered Succesfully");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User Not Saved, Internal Server Error. Please Try Again");
+    }
+
+    @PostMapping("/register-admin")
+    public ResponseEntity<Object> registerAdminUser(@RequestBody Users user){
+        String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+        user.setUserType(UserEnum.IS_ADMIN.toString());
         if (userRepository.save(user).getId()>0){
             return ResponseEntity.ok("User Registered Succesfully");
         }
@@ -47,7 +59,8 @@ public class UserLoginManagementController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Sorry, User Does Not Exist");
         }
         if (new BCryptPasswordEncoder().matches(tokenReqRes.getPassword(), databaseUser.getPassword())){
-            String token = jwtTokenUtil.generateToken(tokenReqRes.getUsername());
+            String tokenString = tokenReqRes.getUsername() + " <> " + databaseUser.getId() + " <> " + databaseUser.getUserType();
+            String token = jwtTokenUtil.generateToken(tokenString);
             tokenReqRes.setToken(token);
             tokenReqRes.setExpirationTime("60 Min");
             Map<String, String> resultResponse = new HashMap<>();
@@ -74,6 +87,8 @@ public class UserLoginManagementController {
             System.out.println("TOKEN IS --> "+token);
             String realToken = token.substring(7);
             String tokenCheckResult = jwtTokenUtil.validateToken(realToken);
+            String username = jwtTokenUtil.getUsernameFromToken(realToken);
+            System.out.println("USERNAME --> "+username);
             if (tokenCheckResult.equalsIgnoreCase("valid")){
                 List<String> fruits = List.of("Mango", "Banana", "Orange","Watermellon","Grapes", "Appple", "Berries");
                 return new ResponseEntity<>(fruits, HttpStatus.OK);
