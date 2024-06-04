@@ -1,0 +1,134 @@
+.Design {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh; 
+    background-color: #f0f0f0; }
+
+
+.container
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 400px;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+
+}
+
+
+.Header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.TEXT {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.UNDERLINE {
+    width: 50px;
+    height: 2px;
+    background-color: #007bff;
+    margin: 10px auto 0;
+}
+
+.Inputs {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.input {
+    margin-bottom: 15px;
+}
+
+.input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.input input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.Forgot-Password {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.Forgot-Password span {
+    color: #007bff;
+    cursor: pointer;
+}
+
+.Forgot-Password span:hover {
+    text-decoration: underline;
+}
+
+.Submit-Container {
+    display: flex;
+    justify-content: space-between;
+    margin: auto;
+}
+
+.Submit, .Submit1 {
+    width: 48%;
+    padding: 10px;
+    text-align: center;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.Submit{
+    position: relative;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.Submit:hover {
+    background-color: #0056b3;
+}
+
+
+.Design{
+    background-color:cornsilk;
+}
+
+.C1{
+    width: 25%;
+    height: 50%;
+    margin: auto;
+    margin-top: 10%;
+    background: linear-gradient(to right, rgb(113, 113, 222), rgb(141, 214, 141));
+    padding: 30px;
+    box-shadow: 10px 10px 15px 5px grey;
+    border-radius: 10px;
+}
+
+button {
+    width: 500px;
+}
+
