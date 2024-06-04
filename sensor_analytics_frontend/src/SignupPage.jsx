@@ -30,8 +30,6 @@ const SignupPage = () => {
         <div className='Submit-Container'>
             <Link to='/dashboard'><button className='Submit'>Sign Up</button></Link>
         </div>
-        
-      
     </div>
     </div>
   )
