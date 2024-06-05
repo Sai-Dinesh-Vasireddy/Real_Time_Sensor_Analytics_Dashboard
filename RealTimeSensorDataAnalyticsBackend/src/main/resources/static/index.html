@@ -10,7 +10,7 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function(frame) {
                 console.log(frame);
-                stompClient.subscribe('/topic/greetings', function(result) {
+                stompClient.subscribe('/topic', function(result) {
                     show(JSON.parse(result.body));
                 });
             });
@@ -21,13 +21,6 @@
                 var text = document.getElementById('text').value;
                 stompClient.send("/app/form", {},
                   JSON.stringify({'text':text}));
-            }
-
-             function sendPrivateMessage() {
-                var text = document.getElementById('privateText').value;
-                var to = document.getElementById('to').value;
-                stompClient.send("/app/private", {},
-                  JSON.stringify({'text':text, 'to':to}));
             }
 
             function show(message) {
@@ -45,11 +38,11 @@
         <input type="text" id="text" placeholder="Text"/>
     </div>
     <br />
-    <div>
+    <!-- <div>
         <button id="sendPrivateMessage" onclick="sendPrivateMessage();">Send Private</button>
         <input type="text" id="privateText" placeholder="Private Message"/>
         <input type="text" id="to" placeholder="To"/>
-    </div>
+    </div> -->
     <br />
     <br />
     <br />

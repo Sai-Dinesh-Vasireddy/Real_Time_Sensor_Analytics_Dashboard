@@ -8,14 +8,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Controller
 public class WebSocketConnectionController {
-    
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
+    // mapped as /app/form
     @MessageMapping("/form")
-    @SendTo("topic/greetings")
+    @SendTo("/topic")
     public String listenFromSocket(String message){
-        return "Recieved "+message;
+        System.out.println("Recieved "+message);
+        return message;
     }
 
 }

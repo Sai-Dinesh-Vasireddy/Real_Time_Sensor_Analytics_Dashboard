@@ -1,22 +1,30 @@
 package com.psd.RealTimeSensorDataAnalyticsBackend.configurations;
 
+import java.util.Objects;
+
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
+
+import com.psd.RealTimeSensorDataAnalyticsBackend.utils.WebSocketMyHandler;;
 
 
 @Component
 public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
 
 
+    // @Autowired
+    // private SimpMessagingTemplate messagingTemplate;
+
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    private WebSocketMyHandler mqttWebSocketHandler;
+
 
     public MqttBrokerCallBacksAutoBeans() {
         try{
@@ -34,10 +42,12 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception{
+    public void messageArrived(String topic, MqttMessage message) throws Exception {
         String content = new String(message.getPayload());
-        messagingTemplate.convertAndSend("/topic/messages", content);
-    }
+        if(Objects.nonNull(mqttWebSocketHandler)){
+            mqttWebSocketHandler.sendMessageToClients(content);
+        }
+    };
     
     @Override
     public void deliveryComplete(IMqttDeliveryToken token){}
