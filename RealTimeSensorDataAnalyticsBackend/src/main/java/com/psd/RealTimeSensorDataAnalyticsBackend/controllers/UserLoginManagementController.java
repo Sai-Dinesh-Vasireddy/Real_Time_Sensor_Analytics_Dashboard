@@ -74,10 +74,11 @@ public class UserLoginManagementController {
     @PostMapping("/login")
     public ResponseEntity<Object> generateToken(@RequestBody TokenModel tokenReqRes){
         Users databaseUser = userRepository.findByUsername(tokenReqRes.getUsername());
-        if (databaseUser == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Sorry, User Does Not Exist");
-        }
         Map<String, String> resultResponse = new HashMap<>();
+        if (databaseUser == null){
+            resultResponse.put("message", "Sorry, User Does Not Exist");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultResponse);
+        }
         if (new BCryptPasswordEncoder().matches(tokenReqRes.getPassword(), databaseUser.getPassword())){
             String tokenString = tokenReqRes.getUsername() + " <> " + databaseUser.getId() + " <> " + databaseUser.getUserType();
             String token = jwtTokenUtil.generateToken(tokenString);
@@ -107,10 +108,10 @@ public class UserLoginManagementController {
         }else{
             System.out.println("TOKEN IS --> "+token);
             String realToken = token.substring(7);
-            String tokenCheckResult = jwtTokenUtil.validateToken(realToken);
+            boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
             String username = jwtTokenUtil.getUsernameFromToken(realToken);
             System.out.println("USERNAME --> "+username);
-            if (tokenCheckResult.equalsIgnoreCase("valid")){
+            if (tokenCheckResult){
                 List<String> fruits = List.of("Mango", "Banana", "Orange","Watermellon","Grapes", "Appple", "Berries");
                 return new ResponseEntity<>(fruits, HttpStatus.OK);
             }else{
