@@ -8,10 +8,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @Controller
 @RequestMapping
@@ -51,4 +55,20 @@ public class OnBoardingSensorController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
 
     }
+
+
+    @GetMapping("/get-all-sensors/{groupName}")
+    public ResponseEntity<Object> getMethodName(@PathVariable String groupName) {
+        Map<String, String> result = new HashMap<>();
+        List<TopicsModel> topicResults = topicRepository.findByGroupName(groupName);
+        if(Objects.nonNull(topicResults)){
+            Map<String, List<TopicsModel>> response = new HashMap<>();
+            response.put("Results", topicResults);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        result.put("Message", "Group not exisits");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    }
+    
+
 }
