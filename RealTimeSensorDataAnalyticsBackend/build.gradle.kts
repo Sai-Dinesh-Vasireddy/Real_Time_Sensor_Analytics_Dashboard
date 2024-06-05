@@ -26,6 +26,7 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 	implementation("org.springframework.security:spring-security-crypto:6.1.3")
+	implementation("javax.validation:validation-api:2.0.1.Final")
 	// implementation("org.springframework.boot:spring-boot-starter-websocket")
 	//implementation("org.apache.kafka:kafka-streams")
 	//implementation("org.springframework.kafka:spring-kafka")
