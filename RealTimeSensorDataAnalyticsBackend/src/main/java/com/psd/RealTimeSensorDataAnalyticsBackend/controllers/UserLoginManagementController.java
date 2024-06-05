@@ -33,31 +33,41 @@ public class UserLoginManagementController {
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody Users user){
-        String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-        user.setUserType(UserEnum.IS_USER.toString());
+        Users searchedUser = userRepository.findByUsername(user.getUsername());
         Map<String, String> resultResponse = new HashMap<>();
-        if (userRepository.save(user).getId()>0){
-            resultResponse.put("message", "User Registered Succesfully");
-            return ResponseEntity.ok(resultResponse);
+        if (searchedUser == null){
+            String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+            user.setPassword(hashedPassword);
+            user.setUserType(UserEnum.IS_USER.toString());
+            if (userRepository.save(user).getId()>0){
+                resultResponse.put("message", "User Registered Succesfully");
+                return ResponseEntity.ok(resultResponse);
+            }
+            resultResponse.put("message", "User Not Saved, Internal Server Error. Please Try Again");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resultResponse);
         }
-        resultResponse.put("message", "User Not Saved, Internal Server Error. Please Try Again");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resultResponse);
+        resultResponse.put("message", "User Not Saved, User already exsists");
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(resultResponse);
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/register-admin")
     public ResponseEntity<Object> registerAdminUser(@RequestBody Users user){
-        String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-        user.setUserType(UserEnum.IS_ADMIN.toString());
+        Users searchedUser = userRepository.findByUsername(user.getUsername());
         Map<String, String> resultResponse = new HashMap<>();
-        if (userRepository.save(user).getId()>0){
-            resultResponse.put("message", "User Registered Succesfully");
-            return ResponseEntity.ok(resultResponse);
+        if (searchedUser == null){
+            String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+            user.setPassword(hashedPassword);
+            user.setUserType(UserEnum.IS_ADMIN.toString());
+            if (userRepository.save(user).getId()>0){
+                resultResponse.put("message", "User Registered Succesfully");
+                return ResponseEntity.ok(resultResponse);
+            }
+            resultResponse.put("message", "User Not Saved, Internal Server Error. Please Try Again");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resultResponse);
         }
-        resultResponse.put("message", "User Not Saved, Internal Server Error. Please Try Again");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resultResponse);
+        resultResponse.put("message", "User Not Saved, User already exsists");
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(resultResponse);
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
