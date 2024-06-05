@@ -14,10 +14,9 @@ import java.util.Objects;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
-import org.springframework.web.bind.annotation.GetMapping;
 
 
-@Controller
+@RestController
 @RequestMapping
 public class OnBoardingSensorController {
 

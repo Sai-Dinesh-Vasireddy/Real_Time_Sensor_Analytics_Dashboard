@@ -17,7 +17,7 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 import com.psd.RealTimeSensorDataAnalyticsBackend.constants.UserEnum;
 
-@Controller
+@RestController
 @RequestMapping
 public class UserLoginManagementController {
 
