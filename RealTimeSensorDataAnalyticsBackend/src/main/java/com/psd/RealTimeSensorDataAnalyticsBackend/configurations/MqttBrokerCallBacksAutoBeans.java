@@ -8,19 +8,11 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.WebSocketSession;
-
-import com.psd.RealTimeSensorDataAnalyticsBackend.utils.WebSocketMyHandler;;
 
 
 @Component
 public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
-
-
-    // @Autowired
-    // private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private WebSocketMyHandler mqttWebSocketHandler;
