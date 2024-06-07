@@ -1,46 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from './UserContext';
+import { login } from './api';
 import './Styles/LoginSignupPage.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { color } from 'chart.js/helpers';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); 
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
-  };
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
+  const { setUser } = useContext(UserContext);
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); 
-
+    event.preventDefault();
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://127.0.0.1:8080/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', "Access-Control-Allow-Origin": "*"},
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Please enter valid Credentials!`);
-      }
-
-      const data = await response.json(); 
-      console.log('Login successful:', data); 
-
-      
-      navigate('/dashboard'); 
+      const data = await login(username, password);
+      console.log('Login successful:', data);
+      setUser(data);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setErrorMessage(error.message); 
+      setErrorMessage(error.message);
     }
   };
 
@@ -57,7 +39,7 @@ const LoginPage = () => {
               type='email'
               placeholder='USERNAME'
               value={username}
-              onChange={handleUsernameChange}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div className='input'>
@@ -65,11 +47,11 @@ const LoginPage = () => {
               type='password'
               placeholder='PASSWORD'
               value={password}
-              onChange={handlePasswordChange}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
         </div>
-        {errorMessage && <div className='error-message'><span style={{color:'red'}}>{errorMessage}</span></div>}
+        {errorMessage && <div className='error-message'><span style={{ color: 'red' }}>{errorMessage}</span></div>}
         <div className='Forgot-Password'>
           Not A Member ?<a href='/signup'><span>Click Here!</span></a>
         </div>
