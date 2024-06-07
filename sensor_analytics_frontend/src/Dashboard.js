@@ -7,10 +7,11 @@ import { Link } from 'react-router-dom';
 import { faCogs } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UserContext } from './UserContext';
+import { faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
-
+  console.log("YESSS", user.user_type)
   return (
     <div className='pageContainer'>
       <NavBar />
@@ -27,6 +28,22 @@ const Dashboard = () => {
         <Chart />
       </div>
 
+      {user?.user_type === 'IS_ADMIN' && (
+        <div className='adminOptions'>
+        <Link to='/addmachine' className='dash-link'>
+            <button className='icon-button'>
+                <FontAwesomeIcon icon={faPlus} />
+                Add Machine
+            </button>
+        </Link>
+        <Link to='/assignmachinetouser' className='dash-link'>
+            <button className='icon-button'>
+                <FontAwesomeIcon icon={faUserPlus} />
+                Assign Machine
+            </button>
+        </Link>
+    </div>
+      )}
     </div>
   );
 };
