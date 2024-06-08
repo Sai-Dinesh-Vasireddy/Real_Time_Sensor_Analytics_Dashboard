@@ -1,12 +1,15 @@
 package com.psd.RealTimeSensorDataAnalyticsBackend.configurations;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
@@ -18,8 +21,9 @@ import java.util.Objects;
 import java.util.List;
 
 
-@Component
-public class WebSocketMyHandler implements WebSocketHandler {
+@Configuration
+@EnableWebSocket
+public class WebSocketMyHandler implements WebSocketHandler, WebSocketConfigurer {
 
     private final Set<WebSocketSession> sessions = new HashSet<>();
     private Map<String, Map<String, String>> requestedSessionInfo = new HashMap<>();
@@ -92,5 +96,10 @@ public class WebSocketMyHandler implements WebSocketHandler {
         for(WebSocketSession session : sessions){
             session.sendMessage(new TextMessage(message));
         }
+    }
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){
+        registry.addHandler(this, "/topic").setAllowedOrigins("*");
     }
 }
