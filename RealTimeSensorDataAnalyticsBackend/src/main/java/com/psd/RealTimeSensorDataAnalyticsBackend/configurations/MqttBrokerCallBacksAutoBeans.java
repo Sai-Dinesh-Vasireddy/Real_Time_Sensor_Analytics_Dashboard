@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
 
     @Autowired
-    private WebSocketMyHandler mqttWebSocketHandler;
+    private WebSocketBeans mqttWebSocketHandler;
 
 
     public MqttBrokerCallBacksAutoBeans() {

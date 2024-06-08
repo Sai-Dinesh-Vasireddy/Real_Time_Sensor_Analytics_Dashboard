@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.ActiveMQMqttBeans;
-import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketMyHandler;
+import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
@@ -29,7 +29,7 @@ public class OnBoardingSensorController {
     public JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public WebSocketMyHandler mqttWebSocketHandler;
+    public WebSocketBeans mqttWebSocketHandler;
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/onboard-new-sensor")
