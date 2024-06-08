@@ -19,13 +19,8 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
 
 
     public MqttBrokerCallBacksAutoBeans() {
-        try{
             IMqttClient mqttClient = ActiveMQMqttBeans.getInstance();
-            mqttClient.setCallback(this);
-            mqttClient.subscribe("testTopic");
-        } catch (MqttException exception){
-            exception.printStackTrace();
-        }
+            mqttClient.setCallback(this);        
     }
 
     @Override
@@ -35,6 +30,7 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
 
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
+        System.out.println("TOPIC MESSAGE RECIEVED FROM "+topic);
         String content = new String(message.getPayload());
         if(Objects.nonNull(mqttWebSocketHandler)){
             mqttWebSocketHandler.sendMessageToClients(content);
