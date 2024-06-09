@@ -141,7 +141,7 @@ public class RealTimeSensorDataAnalyticsBackendApplicationTests {
     @Test
     public void testValidateTokenUtil() {
         String token = jwtTokenUtil.generateToken("testuser");
-        String result = jwtTokenUtil.validateToken(token);
+        boolean result = jwtTokenUtil.validateToken(token);
         assertEquals("valid", result);
     }
 
@@ -149,7 +149,7 @@ public class RealTimeSensorDataAnalyticsBackendApplicationTests {
     public void testValidateTokenExpiredUtil() throws InterruptedException {
         String token = jwtTokenUtil.generateToken("testuser");
         Thread.sleep(60 * 60000); // Wait for the token to expire (60 minutes)
-        String result = jwtTokenUtil.validateToken(token);
+        boolean result = jwtTokenUtil.validateToken(token);
         assertEquals("token expired, Please follow refresh mechanism to generate new token", result);
     }
 }

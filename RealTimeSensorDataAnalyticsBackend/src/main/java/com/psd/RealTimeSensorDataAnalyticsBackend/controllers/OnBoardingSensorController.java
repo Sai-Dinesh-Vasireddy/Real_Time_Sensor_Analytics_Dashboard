@@ -12,7 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.ActiveMQMqttBeans;
+import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConf;
+import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
@@ -31,6 +32,9 @@ public class OnBoardingSensorController {
     @Autowired
     public WebSocketBeans mqttWebSocketHandler;
 
+    @Autowired
+    public CredentialsConf credentialsConf;
+
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/onboard-new-sensor")
     public ResponseEntity<Object> onBoardNewSensorAsTopic(
@@ -47,7 +51,9 @@ public class OnBoardingSensorController {
             if (tokenCheckResult) {
                 if (topicRepository.save(topicsModel).getId() > 0) {
                     try {
-                        IMqttClient mqttClient = ActiveMQMqttBeans.getInstance();
+                        IMqttClient mqttClient = MqttBrokerCallBacksAutoBeans.getInstance(
+                                credentialsConf.getMqttServerURL(), credentialsConf.getServerID(),
+                                credentialsConf.getUsername(), credentialsConf.getPassword());
                         mqttClient.subscribe(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
                         result.put("Message", "Sensor " + topicsModel.getTopicName() + " onboarded Succefully");
                         return ResponseEntity.status(HttpStatus.CREATED).body(result);

@@ -17,4 +17,6 @@ public class TopicsModel {
 
     private String groupName;
 
+    private String machineName;
+
 }
