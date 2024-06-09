@@ -20,7 +20,6 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
     @Autowired
     private WebSocketBeans mqttWebSocketHandler;
 
-
     public MqttBrokerCallBacksAutoBeans() {
             IMqttClient mqttClient = ActiveMQMqttBeans.getInstance();
             mqttClient.setCallback(this);        
@@ -36,7 +35,7 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
         System.out.println("TOPIC MESSAGE RECIEVED FROM "+topic);
         String content = new String(message.getPayload());
         if(Objects.nonNull(mqttWebSocketHandler)){
-            mqttWebSocketHandler.sendMessageToClients(content);
+            mqttWebSocketHandler.sendMessageToClients(content, topic);
         }
     };
     

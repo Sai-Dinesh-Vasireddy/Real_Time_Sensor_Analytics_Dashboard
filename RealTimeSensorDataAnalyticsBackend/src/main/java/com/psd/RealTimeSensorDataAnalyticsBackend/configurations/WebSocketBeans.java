@@ -13,20 +13,18 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
-import java.util.Set;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.List;
+import java.util.ArrayList;
 
 
 @Configuration
 @EnableWebSocket
 public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
 
-    private final Set<WebSocketSession> sessions = new HashSet<>();
-    private Map<String, Map<String, String>> requestedSessionInfo = new HashMap<>();
+    private Map<String, List<WebSocketSession>> requestedSessionInfo = new HashMap<>();
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -36,9 +34,6 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
         List<String> tokens = session.getHandshakeHeaders().getValuesAsList("Authorization");
         if(tokens.size()>0){
             token = tokens.get(0);
-            Map<String, String> valueMap = new HashMap<>();
-            valueMap.put("authorization", token);
-            requestedSessionInfo.put(session.getId(), valueMap);
         }
         return token;
     }
@@ -52,14 +47,35 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
         return false;
     }
 
+    private String getTopicAndGroupName(WebSocketSession session){
+        String[] queryParams = session.getUri().getQuery().split("&");
+        String groupName = null;
+        String topicName = null;
+        for(String param : queryParams){
+            String[] groupTopic = param.split("=");
+            if(groupTopic[0].equals("groupName")){
+                groupName = groupTopic[1];
+            }
+            if(groupTopic[0].equals("topicName")){
+                topicName = groupTopic[1];
+            }
+        }
+        return groupName+"_"+topicName;
+    }
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // work here with methods getUri,getHandshakeHeaders and form the dictionary to note the object type and to which we can send messages
-        // session.getUri(); 
-        //String realToken = token.substring(7);
-        //boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
         if(this.performSocketConnectionAuthorizationCheck(session)){
-            sessions.add(session);
+            String topicAndGroupName = this.getTopicAndGroupName(session);
+            List<WebSocketSession> allSessions = requestedSessionInfo.get(topicAndGroupName);
+            if(Objects.nonNull(allSessions)){
+                allSessions.add(session);
+            } else {
+                allSessions = new ArrayList<>();
+                allSessions.add(session);
+            }
+            requestedSessionInfo.put(topicAndGroupName, allSessions);
             System.out.println("Connection established on session: " + session.getId());
         } else {
             System.out.println("Connection to session " + session.getId() + " failed for not authorizing!");
@@ -91,10 +107,13 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
     }
 
     // Method to send a message to the connected clients
-    public void sendMessageToClients(String message) throws Exception {
+    public void sendMessageToClients(String message, String topicName) throws Exception {
         // we are looping things so we can easily make segegrations and send messages
-        for(WebSocketSession session : sessions){
-            session.sendMessage(new TextMessage(message));
+        List<WebSocketSession> sessions = requestedSessionInfo.get(topicName);
+        if(Objects.nonNull(sessions)){
+            for(WebSocketSession session : sessions){
+                session.sendMessage(new TextMessage(message));
+            }
         }
     }
 
