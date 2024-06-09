@@ -9,7 +9,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const { loginUser } = useContext(UserContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -18,7 +18,7 @@ const LoginPage = () => {
     try {
       const data = await login(username, password);
       console.log('Login successful:', data);
-      setUser(data);
+      loginUser(data);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);

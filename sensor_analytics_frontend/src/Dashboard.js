@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import Chart from './Components/Chart';
@@ -11,6 +11,19 @@ import { faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
+  console.log('Dashboard User:', user);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (user !== null) {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+
+  if (isLoading) {
+    return <div>Loading...</div>; 
+  }
+
   return (
     <div className='pageContainer'>
       <NavBar />
@@ -29,19 +42,19 @@ const Dashboard = () => {
 
       {user?.user_type === 'IS_ADMIN' && (
         <div className='adminOptions'>
-        <Link to='/add_assign_machine' className='dash-link'>
+          <Link to='/add_assign_machine' className='dash-link'>
             <button className='icon-button'>
-                <FontAwesomeIcon icon={faPlus} />
-                Add Machine
+              <FontAwesomeIcon icon={faPlus} />
+              Add Machine
             </button>
-        </Link>
-        <Link to='/add_assign_machine' className='dash-link'>
+          </Link>
+          <Link to='/add_assign_machine' className='dash-link'>
             <button className='icon-button'>
-                <FontAwesomeIcon icon={faUserPlus} />
-                Assign Machine
+              <FontAwesomeIcon icon={faUserPlus} />
+              Assign Machine
             </button>
-        </Link>
-    </div>
+          </Link>
+        </div>
       )}
     </div>
   );

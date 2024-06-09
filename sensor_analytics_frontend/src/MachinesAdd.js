@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import { Link } from 'react-router-dom';
@@ -7,6 +7,11 @@ import './Styles/MachinesAddPage.css'
 
 const MachinesAdd = () => {
     const { user } = useContext(UserContext);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    
+
+    
     const [machineName, setMachineName] = useState('');
     const [topicName, setTopicName] = useState('');
     const [userEmail, setUserEmail] = useState('');
@@ -14,6 +19,17 @@ const MachinesAdd = () => {
     const topicNames = [];
     const [selectedMachine, setSelectedMachine] = useState('');
     const [selectedTopic, setSelectedTopic] = useState('');
+
+    useEffect(() => {
+        if (user !== null) {
+          setIsLoading(false);
+        }
+      }, [user]);
+    
+    
+      if (isLoading) {
+        return <div>Loading...</div>; 
+      }
     const handleMachineAdd = async (event) => {
         event.preventDefault();
         // setErrorMessage('');
@@ -53,7 +69,7 @@ const MachinesAdd = () => {
 
             <div className='assignMachines_Container'>
                 <select id="machines" value={selectedMachine} onChange={(e) => setSelectedMachine(e.target.value)}>
-                    <option value="" disabled>Select a machine</option>
+                    <option value="" disabled>Select a Machine</option>
                         {machineNames.map((machine, index) => (
                         <option key={index} value={machine}>
                             {machine}
