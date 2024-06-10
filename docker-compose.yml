@@ -75,7 +75,6 @@ services:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
     networks:
       - frontend_network
-      - backend_network
     expose:
       - ${FRONTEND_PORT}
     depends_on:
