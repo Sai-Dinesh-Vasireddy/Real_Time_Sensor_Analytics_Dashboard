@@ -5,6 +5,7 @@ import LoginPage from './LoginPage';
 import Dashboard from './Dashboard';
 import Machines from './Machines';
 import Graphs from './Graphs';
+import MachinesAdd from './MachinesAdd';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<LoginPage/>}/>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/machines" element={<Machines />} />
+          <Route path="/add_assign_machine" element={<MachinesAdd />} />
           <Route path="/graphs" element={<Graphs />} />
         </Routes>
     </Router>               
