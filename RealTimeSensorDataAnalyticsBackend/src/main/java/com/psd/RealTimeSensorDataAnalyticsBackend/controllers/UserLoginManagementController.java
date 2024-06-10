@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.psd.RealTimeSensorDataAnalyticsBackend.models.Users;
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TokenModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
@@ -32,8 +32,8 @@ public class UserLoginManagementController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestBody Users user){
-        Users searchedUser = userRepository.findByUsername(user.getUsername());
+    public ResponseEntity<Object> registerUser(@RequestBody UsersModel user){
+        UsersModel searchedUser = userRepository.findByUsername(user.getUsername());
         Map<String, String> resultResponse = new HashMap<>();
         if (searchedUser == null){
             String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
@@ -52,8 +52,8 @@ public class UserLoginManagementController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/register-admin")
-    public ResponseEntity<Object> registerAdminUser(@RequestBody Users user){
-        Users searchedUser = userRepository.findByUsername(user.getUsername());
+    public ResponseEntity<Object> registerAdminUser(@RequestBody UsersModel user){
+        UsersModel searchedUser = userRepository.findByUsername(user.getUsername());
         Map<String, String> resultResponse = new HashMap<>();
         if (searchedUser == null){
             String hashedPassword = bCryptPasswordEncoder.encode(user.getPassword());
@@ -73,7 +73,7 @@ public class UserLoginManagementController {
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/login")
     public ResponseEntity<Object> generateToken(@RequestBody TokenModel tokenReqRes){
-        Users databaseUser = userRepository.findByUsername(tokenReqRes.getUsername());
+        UsersModel databaseUser = userRepository.findByUsername(tokenReqRes.getUsername());
         Map<String, String> resultResponse = new HashMap<>();
         if (databaseUser == null){
             resultResponse.put("message", "Sorry, User Does Not Exist");

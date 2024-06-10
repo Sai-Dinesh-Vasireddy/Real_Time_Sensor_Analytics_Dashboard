@@ -23,7 +23,7 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
     private WebSocketBeans mqttWebSocketHandler;
 
     @Autowired
-    private CredentialsConf credentialsConf;
+    private CredentialsConfBean credentialsConf;
 
     private static IMqttClient mqttClient;
 

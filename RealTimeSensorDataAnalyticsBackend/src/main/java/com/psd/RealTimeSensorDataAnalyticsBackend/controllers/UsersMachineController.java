@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.constants.UserEnum;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
-import com.psd.RealTimeSensorDataAnalyticsBackend.models.Users;
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersMachineModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
@@ -52,11 +52,11 @@ public class UsersMachineController {
             boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
             if(tokenCheckResult){
                 String username = jwtTokenUtil.getUsernameFromToken(realToken);
-                Users adminUser = userRepository.findByUsername(username);
+                UsersModel adminUser = userRepository.findByUsername(username);
                 if(adminUser.getUserType().equals(UserEnum.IS_ADMIN.toString())){
                     // check if the user given username exists in the database
                     String adminGivenUserName = usersMachineModel.getUsername();
-                    Users user = userRepository.findByUsername(adminGivenUserName);
+                    UsersModel user = userRepository.findByUsername(adminGivenUserName);
                     if(Objects.nonNull(user)){
                         // user name is found in database
                         // now check the machine exisits or not

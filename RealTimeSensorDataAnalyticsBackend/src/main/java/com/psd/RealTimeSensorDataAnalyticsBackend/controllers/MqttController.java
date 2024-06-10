@@ -1,6 +1,6 @@
 package com.psd.RealTimeSensorDataAnalyticsBackend.controllers;
 
-import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConf;
+import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConfBean;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.exceptions.ExceptionMessages;
 import com.psd.RealTimeSensorDataAnalyticsBackend.exceptions.MqttException;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class MqttController {
 
     @Autowired
-    public CredentialsConf credentialsConf;
+    public CredentialsConfBean credentialsConf;
 
     @PostMapping("publish")
     public void publishMessage(@RequestBody @Valid MqttPublishModel messagePublishModel,

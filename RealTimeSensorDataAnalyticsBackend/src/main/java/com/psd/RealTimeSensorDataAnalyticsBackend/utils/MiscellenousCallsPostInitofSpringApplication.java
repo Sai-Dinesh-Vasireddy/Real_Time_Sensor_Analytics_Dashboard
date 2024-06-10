@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConf;
+import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConfBean;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.exceptions.MqttException;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
@@ -15,7 +15,7 @@ public class MiscellenousCallsPostInitofSpringApplication {
 
 	public static void initiateAllTopics(ConfigurableApplicationContext context) {
 		TopicRepository topicRepository = context.getBean(TopicRepository.class);
-		CredentialsConf credentialsConf = context.getBean(CredentialsConf.class);
+		CredentialsConfBean credentialsConf = context.getBean(CredentialsConfBean.class);
 
 		IMqttClient mqttClient = MqttBrokerCallBacksAutoBeans.getInstance(credentialsConf.getMqttServerURL(),
 				credentialsConf.getServerID(),

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConf;
+import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConfBean;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
@@ -33,7 +33,7 @@ public class OnBoardingSensorController {
     public WebSocketBeans mqttWebSocketHandler;
 
     @Autowired
-    public CredentialsConf credentialsConf;
+    public CredentialsConfBean credentialsConf;
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/onboard-new-sensor")
