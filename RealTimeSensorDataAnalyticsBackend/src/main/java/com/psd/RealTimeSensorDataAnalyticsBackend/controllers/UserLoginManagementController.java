@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TokenModel;
@@ -106,8 +107,16 @@ public class UserLoginManagementController {
                 UsersModel user = userRepository.findByUsername(userName);
                 if(user.getUserType().equals(UserEnum.IS_ADMIN.toString())){
                     List<UsersModel> allUsers = userRepository.findAll();
+                    List<Map<String, String>> filteredUsers = new ArrayList<>();
+                    for(UsersModel eachUser : allUsers){
+                        Map<String, String> tempData = new HashMap<>();
+                        tempData.put("username", eachUser.getUsername());
+                        tempData.put("email", eachUser.getEmail());
+                        tempData.put("name", eachUser.getName());
+                        filteredUsers.add(tempData);
+                    }
                     result.put("message", "success");
-                    result.put("results", allUsers);
+                    result.put("results", filteredUsers);
                     return ResponseEntity.status(HttpStatus.OK).body(result);
                 } else {
                     result.put("message", "User is not Admin to get all users");
