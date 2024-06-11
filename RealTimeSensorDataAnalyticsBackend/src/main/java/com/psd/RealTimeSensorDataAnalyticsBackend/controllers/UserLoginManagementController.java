@@ -89,6 +89,7 @@ public class UserLoginManagementController {
             resultResponse.put("expiryTime", tokenReqRes.getExpirationTime());
             resultResponse.put("email", databaseUser.getEmail());
             resultResponse.put("token", tokenReqRes.getToken());
+            resultResponse.put("userType", databaseUser.getUserType());
             return ResponseEntity.ok(resultResponse);
         }else {
             resultResponse.put("message", "Password Doesn't Match. Verify");
