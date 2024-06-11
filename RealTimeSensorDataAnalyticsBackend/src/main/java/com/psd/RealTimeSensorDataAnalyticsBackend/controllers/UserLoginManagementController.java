@@ -97,6 +97,7 @@ public class UserLoginManagementController {
     }
 
     // ADMIN ROUTE ONLY
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/get-all-users")
     public ResponseEntity<Object> getAllUsers(@RequestHeader(value = "Authorization", required = false) String token){
         Map<String, Object> result = new HashMap<>();
