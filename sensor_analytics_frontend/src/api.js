@@ -27,3 +27,52 @@ export const register = async (name, username, email, password) => {
 
   return response.json();
 };
+
+export const onboardNewSensor = async (groupName, topicName, machineName, token) => {
+  const response = await fetch(`${API_URL}/onboard-new-sensor`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ groupName, topicName, machineName }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to onboard new sensor');
+  }
+
+  return response.json();
+};
+
+export const assignMachineToUser = async (userName, machineName, token) => {
+  const response = await fetch(`${API_URL}/assign-machine-to-user`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ userName, machineName }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to assign machine to user');
+  }
+
+  return response.json();
+};
+
+export const getAllMachines = async (token) => {
+  const response = await fetch(`${API_URL}/get-all-machines`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch machines');
+  }
+
+  return response.json();
+};
