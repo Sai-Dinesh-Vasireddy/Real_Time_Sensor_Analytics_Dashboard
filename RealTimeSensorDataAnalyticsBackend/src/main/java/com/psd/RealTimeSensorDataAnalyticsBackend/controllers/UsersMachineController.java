@@ -3,7 +3,7 @@ package com.psd.RealTimeSensorDataAnalyticsBackend.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +22,7 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.List;
 
 @RestController
 @RequestMapping
@@ -39,10 +40,10 @@ public class UsersMachineController {
     @Autowired
     private UsersMachineRepository usersMachineRepository;
 
+    // ADMIN ROUTE ONLY
     @PostMapping(value = "/assign-machine-to-user")
     public ResponseEntity<Object> assignMachineToUser(@RequestHeader(value = "Authorization", required = false) String token,
                                     @RequestBody UsersMachineModel usersMachineModel){
-
         Map<String, String> resultResponse = new HashMap<>();
         if (token == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token Is required to Proceed");
@@ -94,5 +95,26 @@ public class UsersMachineController {
     }
 
 
-    
+    // we will get all available machines based on user token
+    @GetMapping("/list-all-available-machines")
+    public ResponseEntity<Object> listAllAvailableMachine(@RequestHeader(value = "Authorization", required = false) String token){
+        Map<String, Object> response = new HashMap<>();
+        if(Objects.nonNull(token)){
+            String username = jwtTokenUtil.getUsernameFromToken(token.substring(7));
+            UsersModel userInfo = userRepository.findByUsername(username);
+            List<UsersMachineModel> allUserMachines;
+            if(userInfo.getUserType().equals(UserEnum.IS_ADMIN.toString())){
+                allUserMachines = usersMachineRepository.findAll();
+            } else {
+                allUserMachines= usersMachineRepository.findByUsername(username);
+            }
+            response.put("message", "success");
+            response.put("response", allUserMachines);
+            response.put("machineCount", allUserMachines.size());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } else {
+            response.put("message", "Authorization failed, please login and send the token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
 }

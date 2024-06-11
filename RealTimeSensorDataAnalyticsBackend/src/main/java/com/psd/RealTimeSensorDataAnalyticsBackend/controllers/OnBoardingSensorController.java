@@ -15,8 +15,11 @@ import java.util.Objects;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConfBean;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketBeans;
+import com.psd.RealTimeSensorDataAnalyticsBackend.constants.UserEnum;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
+import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
 @RestController
@@ -28,6 +31,9 @@ public class OnBoardingSensorController {
 
     @Autowired
     public JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    public UserRepository userRepository;
 
     @Autowired
     public WebSocketBeans mqttWebSocketHandler;
@@ -74,16 +80,57 @@ public class OnBoardingSensorController {
     }
 
     @GetMapping("/get-all-sensors/{groupName}")
-    public ResponseEntity<Object> getMethodName(@PathVariable String groupName) {
+    public ResponseEntity<Object> getMethodName(@RequestHeader(value = "Authorization", required = false) String token,
+                                                @PathVariable String groupName) {
         Map<String, String> result = new HashMap<>();
-        List<TopicsModel> topicResults = topicRepository.findByGroupName(groupName);
-        if (Objects.nonNull(topicResults)) {
-            Map<String, List<TopicsModel>> response = new HashMap<>();
-            response.put("Results", topicResults);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+        if(Objects.nonNull(token)){
+            boolean authorizationValidation = jwtTokenUtil.validateToken(token.substring(7));
+            if(authorizationValidation){
+                List<TopicsModel> topicResults = topicRepository.findByGroupName(groupName);
+                if (Objects.nonNull(topicResults)) {
+                    Map<String, List<TopicsModel>> response = new HashMap<>();
+                    response.put("Results", topicResults);
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
+                }
+                result.put("message", "Group not exisits");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            } else {
+                result.put("message", "authorizaiton token is invalid");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+        } else {
+            result.put("message", "Provide the Authorization token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
-        result.put("Message", "Group not exisits");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    }
+
+
+    // ADMIN ROUTE ONLY
+    @GetMapping("/get-all-machines")
+    public ResponseEntity<Object> getAllMachines(@RequestHeader(value = "Authorization", required = false) String token){
+        Map<String, Object> result = new HashMap<>();
+        if(Objects.nonNull(token)){
+            boolean authorizationValidation = jwtTokenUtil.validateToken(token.substring(7));
+            if(authorizationValidation){
+                String userName = jwtTokenUtil.getUsernameFromToken(token.substring(7));
+                UsersModel user = userRepository.findByUsername(userName);
+                if(user.getEmail().equals(UserEnum.IS_ADMIN.toString())){
+                    List<TopicsModel> allTopics = topicRepository.findAll();
+                    result.put("message", "success");
+                    result.put("results", allTopics);
+                    return ResponseEntity.status(HttpStatus.OK).body(result);
+                } else {
+                    result.put("message", "User is not Admin to get all users");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                }
+            } else {
+                result.put("message", "authorizaiton token is invalid");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+        } else {
+            result.put("message", "Provide the Authorization token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
     }
 
 }
