@@ -73,6 +73,7 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
         System.out.println("Attempting to reconnect!");
         try {
             mqttClient.reconnect();
+            resubscribeToDataBaseTopics();
         } catch (MqttException exception) {
             System.out.println("attempt to reconnect failed!");
         }
