@@ -3,6 +3,7 @@ package com.psd.RealTimeSensorDataAnalyticsBackend.controllers;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +58,15 @@ public class OnBoardingSensorController {
             topicsModel.setMachineName(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
             if (tokenCheckResult) {
                 try{
-                    topicsModel = topicRepository.save(topicsModel);
+                    UsersModel user = userRepository.findByUsername(jwtTokenUtil.getUsernameFromToken(realToken));
+                    if(Objects.nonNull(user)){
+                      if(user.getUserType().equals(UserEnum.IS_ADMIN.toString())){
+                        topicsModel = topicRepository.save(topicsModel);
+                      }  else {
+                        result.put("message", "You are not an admin to assign machines");
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                      }
+                    } 
                 } catch(Exception exception) {
                     result.put("message", "Table constraints failed, duplicate group name and topic name exists!");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
