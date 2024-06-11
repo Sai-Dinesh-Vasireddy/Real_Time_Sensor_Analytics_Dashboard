@@ -114,7 +114,7 @@ public class OnBoardingSensorController {
             if(authorizationValidation){
                 String userName = jwtTokenUtil.getUsernameFromToken(token.substring(7));
                 UsersModel user = userRepository.findByUsername(userName);
-                if(user.getEmail().equals(UserEnum.IS_ADMIN.toString())){
+                if(user.getUserType().equals(UserEnum.IS_ADMIN.toString())){
                     List<TopicsModel> allTopics = topicRepository.findAll();
                     result.put("message", "success");
                     result.put("results", allTopics);

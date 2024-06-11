@@ -104,7 +104,7 @@ public class UserLoginManagementController {
             if(authorizationValidation){
                 String userName = jwtTokenUtil.getUsernameFromToken(token.substring(7));
                 UsersModel user = userRepository.findByUsername(userName);
-                if(user.getEmail().equals(UserEnum.IS_ADMIN.toString())){
+                if(user.getUserType().equals(UserEnum.IS_ADMIN.toString())){
                     List<UsersModel> allUsers = userRepository.findAll();
                     result.put("message", "success");
                     result.put("results", allUsers);
