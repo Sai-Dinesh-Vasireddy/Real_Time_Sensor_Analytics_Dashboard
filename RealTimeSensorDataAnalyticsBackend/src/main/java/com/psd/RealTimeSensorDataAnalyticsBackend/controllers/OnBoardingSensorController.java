@@ -42,40 +42,46 @@ public class OnBoardingSensorController {
     public CredentialsConfBean credentialsConf;
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @PostMapping("/onboard-new-sensor")
+    @PostMapping("/onboard-new-sensor") // make this admin
     public ResponseEntity<Object> onBoardNewSensorAsTopic(
             @RequestBody TopicsModel topicsModel,
             @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, String> result = new HashMap<>();
 
         if (token == null) {
-            result.put("Message", "Authorization Token Is required to Proceed");
+            result.put("message", "Authorization Token Is required to Proceed");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         } else {
             String realToken = token.substring(7);
             boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
             topicsModel.setMachineName(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
             if (tokenCheckResult) {
-                if (topicRepository.save(topicsModel).getId() > 0) {
+                try{
+                    topicsModel = topicRepository.save(topicsModel);
+                } catch(Exception exception) {
+                    result.put("message", "Table constraints failed, duplicate group name and topic name exists!");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+                }
+                if (topicsModel.getId() > 0) {
                     try {
                         IMqttClient mqttClient = MqttBrokerCallBacksAutoBeans.getInstance(
                                 credentialsConf.getMqttServerURL(), credentialsConf.getServerID(),
                                 credentialsConf.getUsername(), credentialsConf.getPassword());
                         mqttClient.subscribe(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
-                        result.put("Message", "Sensor " + topicsModel.getTopicName() + " onboarded Succefully");
+                        result.put("message", "Sensor " + topicsModel.getTopicName() + " onboarded Succefully");
                         return ResponseEntity.status(HttpStatus.CREATED).body(result);
                     } catch (MqttException exception) {
-                        result.put("Message", "Failed to subscribe to MQTT topic: " + exception.getMessage());
+                        result.put("message", "Failed to subscribe to MQTT topic: " + exception.getMessage());
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
                     }
                 }
             } else {
-                result.put("Message",
+                result.put("message",
                         "Sensor " + topicsModel.getTopicName() + " exsists already so the onboarding is failed");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
             }
         }
-        result.put("Message", "Internal Server error");
+        result.put("message", "Internal Server error");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
 
     }
@@ -107,7 +113,7 @@ public class OnBoardingSensorController {
 
 
     // ADMIN ROUTE ONLY
-    @GetMapping("/get-all-machines")
+    @GetMapping("/get-all-machines") // make this admin
     public ResponseEntity<Object> getAllMachines(@RequestHeader(value = "Authorization", required = false) String token){
         Map<String, Object> result = new HashMap<>();
         if(Objects.nonNull(token)){
@@ -121,7 +127,7 @@ public class OnBoardingSensorController {
                     result.put("results", allTopics);
                     return ResponseEntity.status(HttpStatus.OK).body(result);
                 } else {
-                    result.put("message", "User is not Admin to get all users");
+                    result.put("message", "User is not Admin to get all machines");
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
                 }
             } else {
