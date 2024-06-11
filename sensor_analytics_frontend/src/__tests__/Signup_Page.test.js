@@ -7,7 +7,7 @@ import SignupPage from '../SignupPage';
 describe('Sign up page components', () => {
     test('Contains the input field to enter Name', () => {
         render(
-          <MemoryRouter> {/* Wrap your component with MemoryRouter */}
+          <MemoryRouter> 
           <SignupPage />
         </MemoryRouter>
             );
@@ -17,17 +17,37 @@ describe('Sign up page components', () => {
   
     test('Contains the input field to enter Username', () => {
       render(
-        <MemoryRouter> {/* Wrap your component with MemoryRouter */}
+        <MemoryRouter> 
         <SignupPage />
       </MemoryRouter>
     );
       const username = screen.getByPlaceholderText("USERNAME");
       expect(username).toBeInTheDocument();
     });
+
+    test('Contains the input field to enter Email Address', () => {
+      render(
+        <MemoryRouter> 
+        <SignupPage />
+      </MemoryRouter>
+    );
+      const username = screen.getByPlaceholderText("EMAIL ADDRESS");
+      expect(username).toBeInTheDocument();
+    });
+
+    test('Contains the input field to enter password', () => {
+      render(
+        <MemoryRouter> 
+        <SignupPage />
+      </MemoryRouter>
+    );
+      const username = screen.getByPlaceholderText("PASSWORD");
+      expect(username).toBeInTheDocument();
+    });
   
     test('Contains the button for signup', () => {
       render(
-        <MemoryRouter> {/* Wrap your component with MemoryRouter */}
+        <MemoryRouter> 
         <SignupPage />
       </MemoryRouter>
     );
