@@ -26,6 +26,9 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
+          name: Set CI environment variable to false
+          command: echo 'export CI=false' >> $BASH_ENV
+      - run:
           command: npm run build
       - run:
           name: Create the ~/artifacts directory if it doesn't exist

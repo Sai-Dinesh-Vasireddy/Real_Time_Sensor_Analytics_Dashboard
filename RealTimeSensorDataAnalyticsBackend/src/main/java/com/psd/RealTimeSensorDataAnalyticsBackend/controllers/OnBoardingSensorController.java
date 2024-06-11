@@ -3,6 +3,7 @@ package com.psd.RealTimeSensorDataAnalyticsBackend.controllers;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,44 +43,59 @@ public class OnBoardingSensorController {
     public CredentialsConfBean credentialsConf;
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @PostMapping("/onboard-new-sensor")
+    @PostMapping("/onboard-new-sensor") // make this admin
     public ResponseEntity<Object> onBoardNewSensorAsTopic(
             @RequestBody TopicsModel topicsModel,
             @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, String> result = new HashMap<>();
 
         if (token == null) {
-            result.put("Message", "Authorization Token Is required to Proceed");
+            result.put("message", "Authorization Token Is required to Proceed");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         } else {
             String realToken = token.substring(7);
             boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
             topicsModel.setMachineName(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
             if (tokenCheckResult) {
-                if (topicRepository.save(topicsModel).getId() > 0) {
+                try{
+                    UsersModel user = userRepository.findByUsername(jwtTokenUtil.getUsernameFromToken(realToken));
+                    if(Objects.nonNull(user)){
+                      if(user.getUserType().equals(UserEnum.IS_ADMIN.toString())){
+                        topicsModel = topicRepository.save(topicsModel);
+                      }  else {
+                        result.put("message", "You are not an admin to assign machines");
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                      }
+                    } 
+                } catch(Exception exception) {
+                    result.put("message", "Table constraints failed, duplicate group name and topic name exists!");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+                }
+                if (topicsModel.getId() > 0) {
                     try {
                         IMqttClient mqttClient = MqttBrokerCallBacksAutoBeans.getInstance(
                                 credentialsConf.getMqttServerURL(), credentialsConf.getServerID(),
                                 credentialsConf.getUsername(), credentialsConf.getPassword());
                         mqttClient.subscribe(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
-                        result.put("Message", "Sensor " + topicsModel.getTopicName() + " onboarded Succefully");
+                        result.put("message", "Sensor " + topicsModel.getTopicName() + " onboarded Succefully");
                         return ResponseEntity.status(HttpStatus.CREATED).body(result);
                     } catch (MqttException exception) {
-                        result.put("Message", "Failed to subscribe to MQTT topic: " + exception.getMessage());
+                        result.put("message", "Failed to subscribe to MQTT topic: " + exception.getMessage());
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
                     }
                 }
             } else {
-                result.put("Message",
+                result.put("message",
                         "Sensor " + topicsModel.getTopicName() + " exsists already so the onboarding is failed");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
             }
         }
-        result.put("Message", "Internal Server error");
+        result.put("message", "Internal Server error");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
 
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/get-all-sensors/{groupName}")
     public ResponseEntity<Object> getMethodName(@RequestHeader(value = "Authorization", required = false) String token,
                                                 @PathVariable String groupName) {
@@ -107,6 +123,7 @@ public class OnBoardingSensorController {
 
 
     // ADMIN ROUTE ONLY
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/get-all-machines")
     public ResponseEntity<Object> getAllMachines(@RequestHeader(value = "Authorization", required = false) String token){
         Map<String, Object> result = new HashMap<>();
@@ -121,7 +138,7 @@ public class OnBoardingSensorController {
                     result.put("results", allTopics);
                     return ResponseEntity.status(HttpStatus.OK).body(result);
                 } else {
-                    result.put("message", "User is not Admin to get all users");
+                    result.put("message", "User is not Admin to get all machines");
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
                 }
             } else {

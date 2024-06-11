@@ -25,6 +25,7 @@ public class MqttController {
     @Autowired
     public CredentialsConfBean credentialsConf;
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("publish")
     public void publishMessage(@RequestBody @Valid MqttPublishModel messagePublishModel,
             BindingResult bindingResult) throws org.eclipse.paho.client.mqttv3.MqttException {
@@ -41,6 +42,7 @@ public class MqttController {
                 .publish(messagePublishModel.getTopic(), mqttMessage);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("subscribe")
     public List<MqttSubscriberModel> subscribeChannel(@RequestParam(value = "topic") String topic,
             @RequestParam(value = "wait_millis") Integer waitMillis)

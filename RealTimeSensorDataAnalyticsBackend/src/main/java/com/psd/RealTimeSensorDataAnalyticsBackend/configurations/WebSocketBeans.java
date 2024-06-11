@@ -91,7 +91,6 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
             requestedSessionInfo.put(topicAndGroupName, allSessions);
             System.out.println("Connection established on session: " + session.getId());
         } else {
-            System.out.println("Connection to session " + session.getId() + " failed for not authorizing!");
             session.close();
         }
     }

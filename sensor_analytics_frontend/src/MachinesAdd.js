@@ -3,57 +3,93 @@ import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import './Styles/MachinesAddPage.css'
+import './Styles/MachinesAddPage.css';
+import { onboardNewSensor, assignMachineToUser, getAllMachines } from './api';
 
 const MachinesAdd = () => {
     const { user } = useContext(UserContext);
     const [isLoading, setIsLoading] = useState(true);
-    
-    
-
-    
-    const [machineName, setMachineName] = useState('');
+    const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
-    const [userEmail, setUserEmail] = useState('');
-    const machineNames = [];
-    const topicNames = [];
-    const [selectedMachine, setSelectedMachine] = useState('');
+    const [userName, setUserName] = useState('');
+    const [machineNames, setMachineNames] = useState([]);
+    const [topicNames, setTopicNames] = useState([]);
+    const [selectedGroup, setSelectedGroup] = useState('');
     const [selectedTopic, setSelectedTopic] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         if (user !== null) {
           setIsLoading(false);
+          fetchData();
         }
-      }, [user]);
+    }, [user]);
+
+    const fetchData = async () => {
+        try {
+            const data = await getAllMachines(user.token);
+            setMachineNames(data.results.map(machine => machine.groupName));
+            setTopicNames(data.results.map(machine => machine.topicName));
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
     
-    
-      if (isLoading) {
+    if (isLoading) {
         return <div>Loading...</div>; 
-      }
+    }
+
     const handleMachineAdd = async (event) => {
         event.preventDefault();
-        // setErrorMessage('');
+        setErrorMessage('');
     
-        // need to add the api call for handling the machine addition
+        const machineName = `${groupName}_${topicName}`;
 
-      };
-      const handleMachineAssign = async (event) => {
+        try {
+            await onboardNewSensor(groupName, topicName, machineName, user.token);
+            console.log('Machine added successfully');
+            // Reset input values
+            setGroupName('');
+            setTopicName('');
+            // Show success alert
+            alert('Machine added successfully');
+            // Fetch updated data
+            fetchData();
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    };
+
+    const handleMachineAssign = async (event) => {
         event.preventDefault();
-        // setErrorMessage('');
-    
-        // need to add the api call for handling the machine addition
+        setErrorMessage('');
 
-      };
+        const machineName = `${selectedGroup}_${selectedTopic}`;
+
+        try {
+            await assignMachineToUser(userName, machineName, user.token);
+            console.log('Machine assigned successfully');
+            // Reset input values
+            setSelectedGroup('');
+            setSelectedTopic('');
+            setUserName('');
+            // Show success alert
+            alert('Machine assigned successfully');
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    };
+
     return (
         <div className='pageContainer'>
             <NavBar />
             <SideBar />
-            <div className='machineDetails_Container'>
+            <div className='sensorDetails_Container'>
                 <input 
-                    name='machineName'
-                    value={machineName}
-                    placeholder='Enter Machine Name'
-                    onChange={(e) => setMachineName(e.target.value)}
+                    name='groupName'
+                    value={groupName}
+                    placeholder='Enter Group Name'
+                    onChange={(e) => setGroupName(e.target.value)}
                 />
 
                 <input 
@@ -64,12 +100,12 @@ const MachinesAdd = () => {
                 />
                 
                 <button onClick={handleMachineAdd}> Add Machine </button>
-
+                {errorMessage && <div className="error">{errorMessage}</div>}
             </div>
 
-            <div className='assignMachines_Container'>
-                <select id="machines" value={selectedMachine} onChange={(e) => setSelectedMachine(e.target.value)}>
-                    <option value="" disabled>Select a Machine</option>
+            <div className='assignSensors_Container'>
+                <select id="groups" value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
+                    <option value="" disabled>Select a Group</option>
                         {machineNames.map((machine, index) => (
                         <option key={index} value={machine}>
                             {machine}
@@ -87,19 +123,17 @@ const MachinesAdd = () => {
                 </select>
 
                 <input 
-                    type='email'
-                    name='email'
-                    value={userEmail}
-                    placeholder='Enter User Email Address'
-                    onChange={(e) => setUserEmail(e.target.value)}
+                    name='Username'
+                    value={userName}
+                    placeholder='Enter Username'
+                    onChange={(e) => setUserName(e.target.value)}
                 />
                 
                 <button onClick={handleMachineAssign}> Assign Machine to User </button>
-
+                {errorMessage && <div className="error">{errorMessage}</div>}
             </div>
         </div>
     );
-
 }
 
 export default MachinesAdd;

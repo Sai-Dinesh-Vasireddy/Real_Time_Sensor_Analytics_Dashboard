@@ -40,7 +40,7 @@ const Dashboard = () => {
         <Chart />
       </div>
 
-      {user?.user_type === 'IS_ADMIN' && (
+      {user?.userType === 'IS_ADMIN' && (
         <div className='adminOptions'>
           <Link to='/add_assign_machine' className='dash-link'>
             <button className='icon-button'>
