@@ -11,7 +11,7 @@ const MachinesAdd = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
-    const [userName, setUserName] = useState('');
+    const [username, setUserName] = useState('');
     const [machineNames, setMachineNames] = useState([]);
     const [topicNames, setTopicNames] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('');
@@ -67,7 +67,7 @@ const MachinesAdd = () => {
         const machineName = `${selectedGroup}_${selectedTopic}`;
 
         try {
-            await assignMachineToUser(userName, machineName, user.token);
+            await assignMachineToUser(username, machineName, user.token);
             console.log('Machine assigned successfully');
             // Reset input values
             setSelectedGroup('');
@@ -124,7 +124,7 @@ const MachinesAdd = () => {
 
                 <input 
                     name='Username'
-                    value={userName}
+                    value={username}
                     placeholder='Enter Username'
                     onChange={(e) => setUserName(e.target.value)}
                 />
