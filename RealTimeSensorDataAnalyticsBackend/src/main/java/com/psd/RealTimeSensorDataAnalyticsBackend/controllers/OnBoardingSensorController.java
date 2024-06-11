@@ -95,6 +95,7 @@ public class OnBoardingSensorController {
 
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/get-all-sensors/{groupName}")
     public ResponseEntity<Object> getMethodName(@RequestHeader(value = "Authorization", required = false) String token,
                                                 @PathVariable String groupName) {
@@ -122,7 +123,8 @@ public class OnBoardingSensorController {
 
 
     // ADMIN ROUTE ONLY
-    @GetMapping("/get-all-machines") // make this admin
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/get-all-machines")
     public ResponseEntity<Object> getAllMachines(@RequestHeader(value = "Authorization", required = false) String token){
         Map<String, Object> result = new HashMap<>();
         if(Objects.nonNull(token)){
