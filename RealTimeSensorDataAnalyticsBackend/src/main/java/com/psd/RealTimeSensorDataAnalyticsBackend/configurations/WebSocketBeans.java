@@ -11,6 +11,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
+import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
 import java.util.HashMap;
@@ -28,6 +30,9 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private TopicRepository topicRepository;
 
     private String getTokenFromSessionHeader(WebSocketSession session){
         String token = null;
@@ -63,11 +68,19 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
         return groupName+"_"+topicName;
     }
 
+    public boolean performDatabaseCheckForMachineExists(String machineName){
+        TopicsModel topicResult = topicRepository.findByMachineName(machineName);
+        if(Objects.nonNull(topicResult)){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // work here with methods getUri,getHandshakeHeaders and form the dictionary to note the object type and to which we can send messages
-        if(this.performSocketConnectionAuthorizationCheck(session)){
-            String topicAndGroupName = this.getTopicAndGroupName(session);
+        String topicAndGroupName = this.getTopicAndGroupName(session);
+        if(this.performDatabaseCheckForMachineExists(topicAndGroupName)){
             List<WebSocketSession> allSessions = requestedSessionInfo.get(topicAndGroupName);
             if(Objects.nonNull(allSessions)){
                 allSessions.add(session);

@@ -54,6 +54,7 @@ public class OnBoardingSensorController {
         } else {
             String realToken = token.substring(7);
             boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
+            topicsModel.setMachineName(topicsModel.getGroupName() + "_" + topicsModel.getTopicName());
             if (tokenCheckResult) {
                 if (topicRepository.save(topicsModel).getId() > 0) {
                     try {
