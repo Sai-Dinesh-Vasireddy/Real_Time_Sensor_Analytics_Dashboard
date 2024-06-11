@@ -66,21 +66,16 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // work here with methods getUri,getHandshakeHeaders and form the dictionary to note the object type and to which we can send messages
-        if(this.performSocketConnectionAuthorizationCheck(session)){
-            String topicAndGroupName = this.getTopicAndGroupName(session);
-            List<WebSocketSession> allSessions = requestedSessionInfo.get(topicAndGroupName);
-            if(Objects.nonNull(allSessions)){
-                allSessions.add(session);
-            } else {
-                allSessions = new ArrayList<>();
-                allSessions.add(session);
-            }
-            requestedSessionInfo.put(topicAndGroupName, allSessions);
-            System.out.println("Connection established on session: " + session.getId());
+        String topicAndGroupName = this.getTopicAndGroupName(session);
+        List<WebSocketSession> allSessions = requestedSessionInfo.get(topicAndGroupName);
+        if(Objects.nonNull(allSessions)){
+            allSessions.add(session);
         } else {
-            System.out.println("Connection to session " + session.getId() + " failed for not authorizing!");
-            session.close();
+            allSessions = new ArrayList<>();
+            allSessions.add(session);
         }
+        requestedSessionInfo.put(topicAndGroupName, allSessions);
+        System.out.println("Connection established on session: " + session.getId());
     }
 
     @Override
