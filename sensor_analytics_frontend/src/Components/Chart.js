@@ -14,7 +14,6 @@ import {
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
-// Register Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -26,64 +25,43 @@ ChartJS.register(
     TimeScale
 );
 
-const WSS_FEED_URL = "ws://localhost:8080/topic?groupName=SLU&topicName=ECM";
-
-const Chart = () => {
+const Chart = ({ groupName, topicName }) => {
     const [useWebsocketData, setUseWebsocketData] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
-        datasets: [
-            {
-                label: 'RPM',
-                data: [],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            },
-        ],
+        datasets: [],
     });
 
     const processMessages = (event) => {
-      try{
-        const parsedData = JSON.parse(event.data);
-        const rpm = parsedData.rpm;
-        
-        const timestamp = new Date();
-        if (rpm==null) {
-          timestamp = null;
+        try {
+            const parsedData = JSON.parse(event.data);
+            const timestamp = new Date();
+
+            setUseWebsocketData((prevData) => {
+                const updatedData = [...prevData, { ...parsedData, timestamp }];
+                updateChart(updatedData);
+                return updatedData;
+            });
+        } catch (e) {
+            console.log("Data is not in format of Json");
         }
-
-        setUseWebsocketData((prevData) => {
-          const updatedData = [...prevData, { rpm, timestamp }];
-          updateChart(updatedData);
-          return updatedData;
-      });
-
-        
-
-      } catch (e) {
-        console.log("Data is not in format of Json")
-      }
-      
-      
-        
     };
-
-    
 
     const updateChart = (data) => {
-        setChartData((prevData) => ({
-            ...prevData,
+        const datasetNames = Object.keys(data[0]).filter(key => key !== 'timestamp');
+
+        setChartData({
             labels: data.map(item => item.timestamp),
-            datasets: [
-                {
-                    ...prevData.datasets[0],
-                    data: data.map(item => item.rpm),
-                },
-            ],
-        }));
+            datasets: datasetNames.map(name => ({
+                label: name,
+                data: data.map(item => item[name]),
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            })),
+        });
     };
 
-    useWebSocket(WSS_FEED_URL, {
+    const { lastJsonMessage } = useWebSocket(`ws://localhost:8080/topic?groupName=${groupName}&topicName=${topicName}`, {
         onOpen: () => console.log('WebSocket connection opened.'),
         onClose: () => console.log('WebSocket connection closed.'),
         shouldReconnect: (closeEvent) => true,
@@ -111,7 +89,7 @@ const Chart = () => {
             y: {
                 title: {
                     display: true,
-                    text: 'RPM'
+                    text: 'Values'
                 }
             }
         }
@@ -119,7 +97,7 @@ const Chart = () => {
 
     return (
         <div>
-            <h1 style={{color : "white"}}>Real-Time Machine RPM Chart</h1>
+            <h1 style={{color : "white"}}>Real-Time Machine Data Chart</h1>
             <Line data={chartData} options={options} />
         </div>
     );
