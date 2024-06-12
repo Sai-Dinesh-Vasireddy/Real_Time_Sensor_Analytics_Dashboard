@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import './Styles/MachinesAddPage.css';
 import { onboardNewSensor, assignMachineToUser, getAllMachines } from './api';
@@ -11,7 +11,7 @@ const MachinesAdd = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
-    const [username, setUserName] = useState('');
+    const [userName, setUserName] = useState('');
     const [machineNames, setMachineNames] = useState([]);
     const [topicNames, setTopicNames] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('');
@@ -67,7 +67,7 @@ const MachinesAdd = () => {
         const machineName = `${selectedGroup}_${selectedTopic}`;
 
         try {
-            await assignMachineToUser(username, machineName, user.token);
+            await assignMachineToUser(userName, machineName, user.token);
             console.log('Machine assigned successfully');
             // Reset input values
             setSelectedGroup('');
@@ -124,7 +124,7 @@ const MachinesAdd = () => {
 
                 <input 
                     name='Username'
-                    value={username}
+                    value={userName}
                     placeholder='Enter Username'
                     onChange={(e) => setUserName(e.target.value)}
                 />
