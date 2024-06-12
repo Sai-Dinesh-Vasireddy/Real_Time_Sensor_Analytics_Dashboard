@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import './Styles/MachinesAddPage.css';
 import { onboardNewSensor, assignMachineToUser, getAllMachines } from './api';

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import Chart from './Components/Chart';
-import WebSocketTest from './Components/WebSocketTest';
+// import WebSocketTest from './Components/WebSocketTest'; irrelevent initially written just for test purpose
 import './Styles/Dashboard.css';
 import { Link } from 'react-router-dom';
 import { faCogs } from '@fortawesome/free-solid-svg-icons';
@@ -39,7 +39,7 @@ const Dashboard = () => {
 
       <div className='chartContainer'>
         <Chart />
-        <WebSocketTest />
+        {/* <WebSocketTest />    Commenting this one out as it has been tested and irrelevent now*/}
       </div>
 
       {user?.userType === 'IS_ADMIN' && (
