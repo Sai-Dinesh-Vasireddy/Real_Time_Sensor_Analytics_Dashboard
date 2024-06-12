@@ -70,11 +70,18 @@ public class MqttBrokerCallBacksAutoBeans implements MqttCallback {
     @Override
     public void connectionLost(Throwable cause) {
         System.out.println("Connection to MQTT Broker Lost!!");
+        System.out.println(cause.getMessage() + "<<<<<=======>>>>" + cause.getCause());
         System.out.println("Attempting to reconnect!");
         try {
-            mqttClient.reconnect();
+            while(!mqttClient.isConnected()){
+                mqttClient.reconnect();
+                Thread.sleep(10000);
+                System.out.println("Reconnecting!!");
+            }
+            System.out.println("Reconnection Sucessful!");
+            mqttClient.setCallback(this);
             resubscribeToDataBaseTopics();
-        } catch (MqttException exception) {
+        } catch (MqttException | InterruptedException exception) {
             System.out.println("attempt to reconnect failed!");
         }
     }

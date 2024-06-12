@@ -111,6 +111,8 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         System.out.println("Connection closed on session: {} with status: {}" + session.getId() + closeStatus.getCode());
+        // work here on removing the session from the hashmap such that there wont be any error of mqtt closing
+
     }
 
     @Override
@@ -123,9 +125,15 @@ public class WebSocketBeans implements WebSocketHandler, WebSocketConfigurer {
         // we are looping things so we can easily make segegrations and send messages
         List<WebSocketSession> sessions = requestedSessionInfo.get(topicName);
         if(Objects.nonNull(sessions)){
+            List<WebSocketSession> alteredSessions = new ArrayList<>();
             for(WebSocketSession session : sessions){
-                session.sendMessage(new TextMessage(message));
+                if(session.isOpen()){
+                    session.sendMessage(new TextMessage(message));
+                    alteredSessions.add(session);
+                    // this mechanism will be removing the closed sessions
+                }
             }
+            requestedSessionInfo.put(topicName, alteredSessions);
         }
     }
 
