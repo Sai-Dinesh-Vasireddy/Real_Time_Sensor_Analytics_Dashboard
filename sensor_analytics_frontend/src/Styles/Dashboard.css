@@ -110,6 +110,7 @@ body {
 }
 
 .controls{
+  display: flex;
   color: white;
   position: absolute;
   top: 10.2rem;

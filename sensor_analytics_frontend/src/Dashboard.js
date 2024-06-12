@@ -18,6 +18,7 @@ const Dashboard = () => {
   const [topics, setTopics] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('');
+  const [chartType, setChartType] = useState('line');
 
   useEffect(() => {
     const fetchMachines = async () => {
@@ -61,6 +62,10 @@ const Dashboard = () => {
     setSelectedTopic(event.target.value);
   };
 
+  const handleChartTypeChange = (event) => {
+    setChartType(event.target.value);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>; 
   }
@@ -88,6 +93,11 @@ const Dashboard = () => {
             </option>
           ))}
         </select>
+        <h5 style={{marginTop:"5px", padding: "0",width:"8rem",marginLeft:"5%",marginRight:"1%"}}>Select Chart Type</h5>
+        <select onChange={handleChartTypeChange} value={chartType}>
+          <option value='line'>Line</option>
+          <option value='bar'>Bar</option>
+        </select>
       </div>
 
       <Link to='/machines' className='dash-link'>
@@ -99,7 +109,7 @@ const Dashboard = () => {
 
       <div className='chartContainer'>
         {selectedGroup && selectedTopic ? (
-          <Chart groupName={selectedGroup} topicName={selectedTopic} />
+          <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} />
         ) : (
           <h1 style={{marginTop:"28%"}}>
             {selectedGroup ? "Please select the Sensor's topic above" : "Please select the Sensor's group and topic above"}
