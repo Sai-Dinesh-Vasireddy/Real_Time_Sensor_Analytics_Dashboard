@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import Chart from './Components/Chart';
+import WebSocketTest from './Components/WebSocketTest';
 import './Styles/Dashboard.css';
 import { Link } from 'react-router-dom';
 import { faCogs } from '@fortawesome/free-solid-svg-icons';
@@ -38,6 +39,7 @@ const Dashboard = () => {
 
       <div className='chartContainer'>
         <Chart />
+        <WebSocketTest />
       </div>
 
       {user?.userType === 'IS_ADMIN' && (
