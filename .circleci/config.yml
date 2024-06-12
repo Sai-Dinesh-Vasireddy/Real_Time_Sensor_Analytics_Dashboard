@@ -90,28 +90,33 @@ jobs:
       - store_artifacts:
           path: ~/javaArtifacts
           destination: java-build
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+  build-and-push:
     docker:
-      - image: cimg/base:stable
+      - image: docker:20.10.7
     steps:
-      # Replace this with steps to deploy to users
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Build and push Docker images
+          command: |
+            docker-compose --env-file dockerConfig.env build
+            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+            docker-compose push
 workflows:
   build-and-test:
     jobs:
       - test-node
-      - build-node:
-          requires:
-            - test-node
-            - test-java
+      # - build-node:
+      #     requires:
+      #       - test-node
+      #       - test-java
       - test-java
       - build-java:
           requires:
             - test-node
             - test-java
+      
     # - deploy:
     #     requires:
     #       - build-node
