@@ -50,7 +50,6 @@ public class UsersMachineController {
         if (token == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token Is required to Proceed");
         }else{
-            System.out.println("TOKEN IS --> "+token);
             String realToken = token.substring(7);
             boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
             if(tokenCheckResult){
