@@ -56,7 +56,7 @@ jobs:
           destination: java-build
   build-and-push:
     docker:
-      - image: docker:20.10.7
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - setup_remote_docker:
