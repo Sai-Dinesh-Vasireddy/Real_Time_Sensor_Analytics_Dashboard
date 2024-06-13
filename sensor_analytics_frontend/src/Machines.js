@@ -4,17 +4,18 @@ import SideBar from './Components/SideBar';
 import { UserContext } from './UserContext';
 import './Styles/Machines.css'
 import { getAllMachines, deleteMachine } from './api';
+import { useNavigate } from 'react-router-dom';
 
 function Machines() {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(false);
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (user == null) {
-        setIsLoading(true);
+        navigate('/');
       } else {
         fetchMachines();
       }
@@ -42,9 +43,7 @@ function Machines() {
     }
   };
 
-  if (isLoading) {
-    return <div><h1 style={{ color: "White" }}>Please Login before trying to access this page <a href="/">Login Here</a></h1></div>;
-  }
+
 
   return (
     <div className='pageContainer'>

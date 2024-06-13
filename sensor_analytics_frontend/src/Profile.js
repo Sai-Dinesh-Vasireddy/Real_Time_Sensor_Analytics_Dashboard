@@ -3,26 +3,25 @@ import './Styles/Profile.css';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import { UserContext } from './UserContext';
+import { useNavigate } from 'react-router-dom';
 
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(false);
   const [username, setUserName] = useState('');
   const [email, setEmail] = useState('');
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (user == null) {
-        setIsLoading(true);
+        navigate('/');
       } else {
         setUserName(user.username);
         setEmail(user.email);
       }
     }, 0);
 }, [user]);
-if (isLoading) {
-  return <div><h1 style={{color:"White"}}>Please Login before trying to access this page <a href="/"> Login Here</a></h1></div>; 
-}
+
 return (
     <div>
         <NavBar />

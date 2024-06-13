@@ -5,10 +5,11 @@ import SideBar from './Components/SideBar';
 import { UserContext } from './UserContext';
 import './Styles/MachinesAddPage.css';
 import { onboardNewSensor, assignMachineToUser, getAllMachines } from './api';
+import { useNavigate } from 'react-router-dom';
 
 const MachinesAdd = () => {
+    const navigate = useNavigate();
     const { user } = useContext(UserContext);
-    const [isLoading, setIsLoading] = useState(false);
     const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
     const [userName, setUserName] = useState('');
@@ -23,7 +24,7 @@ const MachinesAdd = () => {
     useEffect(() => {
         const timeout = setTimeout(() => {
             if (user == null) {
-              setIsLoading(true);
+                navigate('/');
             }
             else {
                 fetchData();
@@ -128,9 +129,7 @@ const MachinesAdd = () => {
         setTopicNames(filteredTopics);
     };
 
-    if (isLoading) {
-        return <div><h1 style={{color:"White"}}>Please Login before trying to access this page <a href="/"> Login Here</a></h1></div>; 
-      }
+    
       
     return (
         

@@ -3,7 +3,7 @@ import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import Chart from './Components/Chart';
 import './Styles/Dashboard.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { faCogs } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UserContext } from './UserContext';
@@ -11,8 +11,8 @@ import { faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { getAllMachines } from './api'; // Assuming this is the correct path to the API function
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(false);
   const [machines, setMachines] = useState([]);
   const [groups, setGroups] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [displayCount, setDisplayCount] = useState(100); // Number of records to display 
   const [loadedCount, setLoadedCount] = useState(0); // Number of records already loaded
   const tableRef = useRef(null);
-
+  
 
 
   useEffect(() => {
@@ -50,9 +50,9 @@ const Dashboard = () => {
 
     const timeout = setTimeout(() => {
       if (user == null) {
-        setIsLoading(true);
+        navigate('/');
       }
-    }, 100);
+    }, 0);
 
     if (user !== null) {
       fetchMachines();
@@ -160,9 +160,7 @@ const Dashboard = () => {
     }
   };
 
-  if (isLoading) {
-    return <div><h1 style={{color:"White"}}>Please Login before trying to access this page <a href="/"> Login Here</a></h1></div>; 
-  }
+  
 
   return (
     <div className='pageContainer'>
