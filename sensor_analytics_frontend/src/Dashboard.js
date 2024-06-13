@@ -167,8 +167,8 @@ const Dashboard = () => {
 
       <Link to='/machines' className='dash-link'>
         <div className='machineCountStatus'>
-          <h1>Machines Assigned<FontAwesomeIcon icon={faCogs} size='2x' className='machineIcon' /></h1>
-          <h5 id='machinesCount'>3</h5>
+          <h1> {user?.userType != 'IS_ADMIN' ? ('Machines Assigned') : ('Number of Machines')}<FontAwesomeIcon icon={faCogs} size='2x' className='machineIcon' /></h1>
+          <h5 id='machinesCount'> {machines.length != 0 ? (machines.length) : (0)} </h5>
         </div>
       </Link>
 
