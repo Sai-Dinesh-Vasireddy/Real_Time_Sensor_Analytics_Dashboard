@@ -160,8 +160,16 @@ public class OnBoardingSensorController {
                     result.put("results", resultData);
                     return ResponseEntity.status(HttpStatus.OK).body(result);
                 } else {
-                    result.put("message", "User is not Admin to get all machines");
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                    // return non user data
+                    List<UsersMachineModel> resultData = usersMachineRepository.findByUsername(user.getUsername());
+                    List<TopicsModel> resultDataTopics = new ArrayList<>();
+                    for (UsersMachineModel usersMachineModel : resultData){
+                        TopicsModel temp = topicRepository.findByMachineName(usersMachineModel.getMachineName());
+                        resultDataTopics.add(temp);
+                    }
+                    result.put("message", "success for user!");
+                    result.put("results", resultDataTopics);
+                    return ResponseEntity.status(HttpStatus.OK).body(result);
                 }
             } else {
                 result.put("message", "authorizaiton token is invalid");
