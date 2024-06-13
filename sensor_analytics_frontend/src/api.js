@@ -45,14 +45,14 @@ export const onboardNewSensor = async (groupName, topicName, machineName, token)
   return response.json();
 };
 
-export const assignMachineToUser = async (userName, machineName, token) => {
+export const assignMachineToUser = async (username, machineName, token) => {
   const response = await fetch(`${API_URL}/assign-machine-to-user`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify({ userName, machineName }),
+    body: JSON.stringify({ username, machineName }),
   });
 
   if (!response.ok) {
