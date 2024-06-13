@@ -60,13 +60,16 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/workspace
-      - checkout
+      # - checkout
       - setup_remote_docker:
           version: 20.10.7
       - run:
           name: Build and push Docker images
           command: |
             ls -al
+      - run:
+          name: Build and push Docker images PWD
+          command: |
             pwd
       - run:
           name: Test the ~/javaArtifacts
