@@ -65,6 +65,14 @@ jobs:
           name: Build and push Docker images
           command: |
             ls -al
+      - run:
+          name: Test the ~/javaArtifacts
+          command: |
+            ls ~/javaArtifacts
+      - run:
+          name: Test the ~/artifacts
+          command: |
+            ls ~/artifacts
 workflows:
   build-and-test:
     jobs:
@@ -73,5 +81,5 @@ workflows:
       - build-and-push:
           requires:
             - build-node
-            - build-java 
+            - build-java
 
