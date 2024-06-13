@@ -8,7 +8,7 @@ import { onboardNewSensor, assignMachineToUser, getAllMachines } from './api';
 
 const MachinesAdd = () => {
     const { user } = useContext(UserContext);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
     const [userName, setUserName] = useState('');
@@ -21,10 +21,14 @@ const MachinesAdd = () => {
     const [isTopicDropdownDisabled, setIsTopicDropdownDisabled] = useState(true); // State for topic dropdown enablement
 
     useEffect(() => {
-        if (user !== null) {
-            setIsLoading(false);
-            fetchData();
-        }
+        const timeout = setTimeout(() => {
+            if (user == null) {
+              setIsLoading(true);
+            }
+            else {
+                fetchData();
+            }
+          }, 100);
     }, [user, selectedGroup]);
 
     const fetchData = async () => {
@@ -124,7 +128,12 @@ const MachinesAdd = () => {
         setTopicNames(filteredTopics);
     };
 
+    if (isLoading) {
+        return <div><h1 style={{color:"White"}}>Please Login before trying to access this page <a href="/"> Login Here</a></h1></div>; 
+      }
+      
     return (
+        
         <div className='pageContainer'>
             <NavBar />
             <SideBar />

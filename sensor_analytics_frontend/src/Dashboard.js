@@ -12,7 +12,7 @@ import { getAllMachines } from './api'; // Assuming this is the correct path to 
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [machines, setMachines] = useState([]);
   const [groups, setGroups] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -23,6 +23,8 @@ const Dashboard = () => {
   const [displayCount, setDisplayCount] = useState(100); // Number of records to display 
   const [loadedCount, setLoadedCount] = useState(0); // Number of records already loaded
   const tableRef = useRef(null);
+
+
 
   useEffect(() => {
     const fetchMachines = async () => {
@@ -43,10 +45,14 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Error fetching machines:', error);
         setMachines([]);
-      } finally {
-        setIsLoading(false);
       }
     };
+
+    const timeout = setTimeout(() => {
+      if (user == null) {
+        setIsLoading(true);
+      }
+    }, 100);
 
     if (user !== null) {
       fetchMachines();
@@ -155,16 +161,13 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>; 
+    return <div><h1 style={{color:"White"}}>Please Login before trying to access this page <a href="/"> Login Here</a></h1></div>; 
   }
 
   return (
     <div className='pageContainer'>
       <NavBar />
       <SideBar />
-
-      
-
       <Link to='/machines' className='dash-link'>
         <div className='machineCountStatus'>
           <h1> {user?.userType != 'IS_ADMIN' ? ('Machines Assigned') : ('Number of Machines')}<FontAwesomeIcon icon={faCogs} size='2x' className='machineIcon' /></h1>
