@@ -76,13 +76,13 @@ jobs:
       - run:
           name: Tag the docker containers with latest tag
           command: |
-            docker tag project-frontend:latest laxvadnala/realtimeanalytics-frontend:latest
-            docker tag project-backend:latest laxvadnala/realtimeanalytics-backend:latest
+            docker tag project-frontend:latest laxvadnala/realtimeanalytics-frontend:${CIRCLE_SHA1}
+            docker tag project-backend:latest laxvadnala/realtimeanalytics-backend:${CIRCLE_SHA1}
       - run:
           name: Push the docker containers to docker hub
           command: |
-            docker push laxvadnala/realtimeanalytics-backend:latest
-            docker push laxvadnala/realtimeanalytics-frontend:latest
+            docker push laxvadnala/realtimeanalytics-backend:${CIRCLE_SHA1}
+            docker push laxvadnala/realtimeanalytics-frontend:${CIRCLE_SHA1}
 
 workflows:
   build-and-test:
