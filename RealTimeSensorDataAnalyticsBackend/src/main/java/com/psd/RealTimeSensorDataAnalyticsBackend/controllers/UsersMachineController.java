@@ -68,12 +68,17 @@ public class UsersMachineController {
                             usersMachineModel.setMachineId(machineFoundResults.getId());
                             usersMachineModel.setUsername(user.getUsername());
                             usersMachineModel.setMachineName(machineFoundResults.getMachineName());
-                            if(usersMachineRepository.save(usersMachineModel).getId()>0){
-                                resultResponse.put("message", "Assignment completed!");
-                                return  ResponseEntity.status(HttpStatus.OK).body(resultResponse); 
-                            } else {
-                                resultResponse.put("message", "Machine Not assigned due to internal server error");
-                                return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resultResponse); 
+                            try{
+                                if(usersMachineRepository.save(usersMachineModel).getId()>0){
+                                    resultResponse.put("message", "Assignment completed!");
+                                    return  ResponseEntity.status(HttpStatus.OK).body(resultResponse); 
+                                } else {
+                                    resultResponse.put("message", "Machine Not assigned because its already exsists");
+                                    return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultResponse); 
+                                }
+                            } catch (Exception exception){
+                                resultResponse.put("message", "Machine Not assigned because its already exsists");
+                                return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resultResponse); 
                             }
                         } else {
                             resultResponse.put("message", "Machine Name not found in database "+usersMachineModel.getMachineName() + ", Please register this machine before proceeding");
