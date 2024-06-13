@@ -67,8 +67,8 @@ const Dashboard = () => {
           }
   
           // Generate random values for rpm and utilization
-          const rpm = Math.floor(Math.random() * 100); // random value between 0 and 99
-          const utilization = Math.floor(Math.random() * 100); // random value between 0 and 99
+          const rpm = Math.floor(Math.random() * 50) + 1; // random value between 0 and 100
+          const utilization = Math.floor(Math.random() * 51) + 50; // random value between 50 and 100 (including 100)
   
           const payload = {
             topic,
@@ -163,31 +163,7 @@ const Dashboard = () => {
       <NavBar />
       <SideBar />
 
-      <div className='controls'>
-        <select onChange={handleGroupChange} value={selectedGroup}>
-          <option value=''>Select Group</option>
-          {groups.map((group) => (
-            <option key={group} value={group}>
-              {group}
-            </option>
-          ))}
-        </select>
-
-        <select onChange={handleTopicChange} value={selectedTopic} disabled={!selectedGroup}>
-          <option value=''>Select Topic</option>
-          {selectedGroup && topics.map((topic) => (
-            <option key={topic.topicName} value={topic.topicName}>
-              {topic.topicName}
-            </option>
-          ))}
-        </select>
-        
-        <h5 style={{marginTop:"5px", padding: "0",width:"8rem",marginLeft:"5%",marginRight:"1%"}}>Select Chart Type</h5>
-        <select onChange={handleChartTypeChange} value={chartType}>
-          <option value='line'>Line</option>
-          <option value='bar'>Bar</option>
-        </select>
-      </div>
+      
 
       <Link to='/machines' className='dash-link'>
         <div className='machineCountStatus'>
@@ -197,10 +173,35 @@ const Dashboard = () => {
       </Link>
 
       <div className='chartContainer'>
+          <div className='controls'>
+            <select onChange={handleGroupChange} value={selectedGroup}>
+              <option value=''>Select Group</option>
+              {groups.map((group) => (
+                <option key={group} value={group}>
+                  {group}
+                </option>
+              ))}
+            </select>
+
+            <select onChange={handleTopicChange} value={selectedTopic} disabled={!selectedGroup}>
+              <option value=''>Select Topic</option>
+              {selectedGroup && topics.map((topic) => (
+                <option key={topic.topicName} value={topic.topicName}>
+                  {topic.topicName}
+                </option>
+              ))}
+            </select>
+            
+            <h5 style={{marginTop:"5px", padding: "0",width:"8rem",marginLeft:"5%",marginRight:"1%"}}>Select Chart Type</h5>
+            <select onChange={handleChartTypeChange} value={chartType}>
+              <option value='line'>Line</option>
+              <option value='bar'>Bar</option>
+            </select>
+          </div>
         {selectedGroup && selectedTopic ? (
           <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} setRealTimeData={setRealTimeData} />
         ) : (
-          <h1 style={{marginTop:"28%"}}>
+          <h1 style={{marginTop:"25%"}}>
             {selectedGroup ? "Please select the Sensor's topic above" : "Please select the Sensor's group and topic above"}
           </h1>
         )}
