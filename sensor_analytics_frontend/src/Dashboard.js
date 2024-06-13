@@ -94,7 +94,7 @@ const Dashboard = () => {
           }
   
           counter++;
-        }, 1000); // Interval set to 5000ms (5 seconds)
+        }, 1000); // Interval set to 1000ms (1 second)
       };
   
       sendPostRequests();
