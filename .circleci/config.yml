@@ -61,6 +61,12 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.7
+      # Install Docker Compose
+      - run:
+          name: Install Docker Compose
+          command: |
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
       - run:
           name: Build the Java Jars
           command: |
@@ -72,11 +78,20 @@ jobs:
       - run:
           name: Run the docker compose up command
           command: |
-            docker compose --env-file dockerConfig.env build
+            docker-compose --env-file dockerConfig.env build
       - run:
           name: check the docker images
           command: |
             docker images
+      - run:
+          name: Authenticate with Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - run:
+          name: Push Docker Image to Docker Hub
+          command: |
+            ls -al
+      #      docker push $DOCKERHUB_USERNAME/myapp:${CIRCLE_SHA1}
 
 workflows:
   build-and-test:
