@@ -46,10 +46,48 @@ const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
     const processMessages = (event) => {
         try {
             const parsedData = JSON.parse(event.data);
+
             const timestamp = new Date();
 
             setUseWebsocketData((prevData) => {
-                const updatedData = [...prevData, { ...parsedData, timestamp }];
+                let recievedData = { ...parsedData, timestamp };
+                let updatedData = [];
+                if(prevData.length>0){ 
+                    let recievedKeys = Object.keys(recievedData); 
+                    let prevDataKeys = Object.keys(prevData[0]);
+                    let newKey = recievedKeys.filter((element) => !prevDataKeys.includes(element));
+                    let newData = new Array();
+                    if(newKey.length>0){
+                        for(let i = 0; i<prevData.length; i++){
+                            let temp = prevData[i];
+                            for(let j=0; j<newKey.length; j++){
+                                temp[newKey[j]] = 0;
+                            }
+                            newData.push(temp);
+                        }
+
+                        // check if recieved data have all the keys
+                        newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
+                        if(newKey.length>0){
+                            for(let i=0; i<newKey.length; i++){
+                                recievedData[newKey[i]] = 0;
+                            }
+                        }
+                        updatedData = [...newData, recievedData];
+                    } else {
+                        // check if the recievedData have all the keys
+                        let newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
+                        if(newKey.length>0){
+                            for(let i=0; i<newKey.length; i++){
+                                recievedData[newKey[i]] = 0;
+                            }
+                        }
+                        updatedData = [...prevData, recievedData];
+                    }
+                } else {
+                    updatedData = [recievedData];
+                }
+                
                 updateChart(updatedData);
                 return updatedData;
             });

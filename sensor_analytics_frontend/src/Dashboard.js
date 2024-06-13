@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [displayCount, setDisplayCount] = useState(100); // Number of records to display 
   const [loadedCount, setLoadedCount] = useState(0); // Number of records already loaded
   const tableRef = useRef(null);
-  
+
 
 
   useEffect(() => {
@@ -31,10 +31,10 @@ const Dashboard = () => {
       try {
         const token = user.token;
         const data = await getAllMachines(token);
-    
+
         // Extract the results from the response
         const machines = data.results;
-    
+
         if (Array.isArray(machines) && machines.length > 0) {
           setMachines(machines);
           const uniqueGroups = [...new Set(machines.map(machine => machine.groupName))];
@@ -64,25 +64,25 @@ const Dashboard = () => {
       const sendPostRequests = async () => {
         const topic = `${selectedGroup}_${selectedTopic}`; // Replace with your logic for the dynamic topic
         let counter = 0;
-  
+
         const intervalId = setInterval(async () => {
           // Stop the interval after 100 iterations
           if (counter >= 100) {
             clearInterval(intervalId);
             return;
           }
-  
+
           // Generate random values for rpm and utilization
           const rpm = Math.floor(Math.random() * 50) + 1; // random value between 0 and 100
           const utilization = Math.floor(Math.random() * 51) + 50; // random value between 50 and 100 (including 100)
-  
+
           const payload = {
             topic,
             message: JSON.stringify({ rpm, utilization }),
             retained: true,
             qos: 0
           };
-  
+
           try {
             const response = await fetch('http://127.0.0.1:8080/api/mqtt/publish', {
               method: 'POST',
@@ -98,11 +98,11 @@ const Dashboard = () => {
           } catch (error) {
             console.error(error);
           }
-  
+
           counter++;
         }, 1000); // Interval set to 1000ms (1 second)
       };
-  
+
       sendPostRequests();
     }
   }, [selectedGroup, selectedTopic]);
@@ -129,17 +129,17 @@ const Dashboard = () => {
   const downloadCSV = () => {
     // Include headers for CSV
     const headers = ['Timestamp', ...Object.keys(realTimeData[0]).filter(key => key !== 'timestamp')];
-    
+
     // Convert realTimeData to CSV format
-    const csvContent = "data:text/csv;charset=utf-8," 
+    const csvContent = "data:text/csv;charset=utf-8,"
       + headers.join(',') + '\n'
       + realTimeData.map(row => {
-          return [
-            row.timestamp.toLocaleTimeString(), // Ensure timestamp is formatted as needed
-            ...headers.slice(1).map(header => row[header])
-          ].join(',');
-        }).join('\n');
-    
+        return [
+          row.timestamp.toLocaleTimeString(), // Ensure timestamp is formatted as needed
+          ...headers.slice(1).map(header => row[header])
+        ].join(',');
+      }).join('\n');
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -160,7 +160,7 @@ const Dashboard = () => {
     }
   };
 
-  
+
 
   return (
     <div className='pageContainer'>
@@ -174,91 +174,95 @@ const Dashboard = () => {
       </Link>
 
       <div className='chartContainer'>
-          <div className='controls'>
-            <select onChange={handleGroupChange} value={selectedGroup}>
-              <option value=''>Select Group</option>
-              {groups.map((group) => (
-                <option key={group} value={group}>
-                  {group}
-                </option>
-              ))}
-            </select>
+        <div className='controls'>
+          <select onChange={handleGroupChange} value={selectedGroup}>
+            <option value=''>Select Group</option>
+            {groups.map((group) => (
+              <option key={group} value={group}>
+                {group}
+              </option>
+            ))}
+          </select>
 
-            <select onChange={handleTopicChange} value={selectedTopic} disabled={!selectedGroup}>
-              <option value=''>Select Topic</option>
-              {selectedGroup && topics.map((topic) => (
-                <option key={topic.topicName} value={topic.topicName}>
-                  {topic.topicName}
-                </option>
-              ))}
-            </select>
-            
-            <h5 style={{marginTop:"5px", padding: "0",width:"8rem",marginLeft:"5%",marginRight:"1%"}}>Select Chart Type</h5>
-            <select onChange={handleChartTypeChange} value={chartType}>
-              <option value='line'>Line</option>
-              <option value='bar'>Bar</option>
-            </select>
-          </div>
+          <select onChange={handleTopicChange} value={selectedTopic} disabled={!selectedGroup}>
+            <option value=''>Select Topic</option>
+            {selectedGroup && topics.map((topic) => (
+              <option key={topic.topicName} value={topic.topicName}>
+                {topic.topicName}
+              </option>
+            ))}
+          </select>
+
+          <h5 style={{ marginTop: "5px", padding: "0", width: "8rem", marginLeft: "5%", marginRight: "1%" }}>Select Chart Type</h5>
+          <select onChange={handleChartTypeChange} value={chartType}>
+            <option value='line'>Line</option>
+            <option value='bar'>Bar</option>
+          </select>
+        </div>
         {selectedGroup && selectedTopic ? (
           <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} setRealTimeData={setRealTimeData} />
         ) : (
-          <h1 style={{marginTop:"25%"}}>
+          <h1 style={{ marginTop: "25%" }}>
             {selectedGroup ? "Please select the Sensor's topic above" : "Please select the Sensor's group and topic above"}
           </h1>
         )}
       </div>
       <button className='download-button' onClick={downloadCSV} disabled={realTimeData.length === 0} hidden={realTimeData.length === 0}>
-            Download CSV
-        </button>
-        
-      
+        Download CSV
+      </button>
+
+
       {/* Real-time Data Table */}
       <div className='realTimeDataTable' hidden={realTimeData.length === 0}>
         {/* Download CSV Button */}
-        
+
         <div className='tableWrapper' ref={tableRef} onScroll={handleScroll} style={{ width: '100%', overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
           <table>
             <thead>
               <tr>
                 <th>Timestamp</th>
-                {realTimeData.length > 0 && Object.keys(realTimeData[0]).map((key) => (
+                {realTimeData.length > 0 && Object.keys(realTimeData[0]).sort().map((key) => (
                   key !== 'timestamp' && <th key={key}>{key}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {realTimeData.slice(0, displayCount).map((data, index) => (
-                <tr key={index}>
-                  <td>{data.timestamp.toLocaleTimeString()}</td>
-                  {Object.keys(data).map((key) => (
-                    key !== 'timestamp' && <td key={key}>{data[key]}</td>
-                  ))}
-                </tr>
-              ))}
+              {realTimeData.slice(0, displayCount).map((data, index) => {
+                let dataKeys = Object.keys(data).filter(key => key !== 'timestamp').sort();
+                return (
+                  <tr key={index}>
+                    <td>{data.timestamp.toLocaleTimeString()}</td>
+                    {dataKeys.map((key) => (
+                      <td key={key}>{data[key]}</td>
+                    ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Admin Options */}
-      {user?.userType === 'IS_ADMIN' && (
-        <div className='adminOptions'>
-          <Link to='/add_assign_machine' className='dash-link'>
-            <button className='icon-button'>
-              <FontAwesomeIcon icon={faPlus} />
-              Add Machine
-            </button>
-          </Link>
-          <Link to='/add_assign_machine' className='dash-link'>
-            <button className='icon-button'>
-              <FontAwesomeIcon icon={faUserPlus} />
-              Assign Machine
-            </button>
-          </Link>
         </div>
-      )}
-    </div>
-  );
+
+
+        {/* Admin Options */}
+        {user?.userType === 'IS_ADMIN' && (
+          <div className='adminOptions'>
+            <Link to='/add_assign_machine' className='dash-link'>
+              <button className='icon-button'>
+                <FontAwesomeIcon icon={faPlus} />
+                Add Machine
+              </button>
+            </Link>
+            <Link to='/add_assign_machine' className='dash-link'>
+              <button className='icon-button'>
+                <FontAwesomeIcon icon={faUserPlus} />
+                Assign Machine
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+      );
 };
 
-export default Dashboard;
+      export default Dashboard;
