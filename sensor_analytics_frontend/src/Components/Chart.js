@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Line, Bar, Radar, Pie, Doughnut } from 'react-chartjs-2';
+import { useState, useEffect } from "react";
+import { Line, Bar } from 'react-chartjs-2';
 import useWebSocket from 'react-use-websocket';
 import {
     Chart as ChartJS,
@@ -27,7 +27,7 @@ ChartJS.register(
     TimeScale
 );
 
-const Chart = ({ groupName, topicName, chartType }) => {
+const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
     const [useWebsocketData, setUseWebsocketData] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
@@ -70,6 +70,9 @@ const Chart = ({ groupName, topicName, chartType }) => {
                 backgroundColor: colorPalette[index % colorPalette.length].replace('1)', '0.2)'),
             })),
         });
+
+        // Pass real-time data to parent component (Dashboard)
+        setRealTimeData(data);
     };
 
     useWebSocket(`ws://localhost:8080/topic?groupName=${groupName}&topicName=${topicName}`, {
@@ -115,7 +118,7 @@ const Chart = ({ groupName, topicName, chartType }) => {
 
     return (
         <div>
-            <h1 style={{color : "white"}}>Real-Time Machine Data Chart</h1>
+            <h4 style={{color : "white"}}>Real-Time Machine Data Chart</h4>
             <ChartComponent data={chartData} options={options} />
         </div>
     );

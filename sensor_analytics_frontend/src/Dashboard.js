@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import Chart from './Components/Chart';
@@ -19,6 +19,10 @@ const Dashboard = () => {
   const [selectedGroup, setSelectedGroup] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('');
   const [chartType, setChartType] = useState('line');
+  const [realTimeData, setRealTimeData] = useState([]);
+  const [displayCount, setDisplayCount] = useState(100); // Number of records to display 
+  const [loadedCount, setLoadedCount] = useState(0); // Number of records already loaded
+  const tableRef = useRef(null);
 
   useEffect(() => {
     const fetchMachines = async () => {
@@ -49,7 +53,56 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (selectedGroup && selectedTopic) {
+      const sendPostRequests = async () => {
+        const topic = `${selectedGroup}_${selectedTopic}`; // Replace with your logic for the dynamic topic
+        let counter = 0;
+  
+        const intervalId = setInterval(async () => {
+          // Stop the interval after 100 iterations
+          if (counter >= 100) {
+            clearInterval(intervalId);
+            return;
+          }
+  
+          // Generate random values for rpm and utilization
+          const rpm = Math.floor(Math.random() * 100); // random value between 0 and 99
+          const utilization = Math.floor(Math.random() * 100); // random value between 0 and 99
+  
+          const payload = {
+            topic,
+            message: JSON.stringify({ rpm, utilization }),
+            retained: true,
+            qos: 0
+          };
+  
+          try {
+            const response = await fetch('http://127.0.0.1:8080/api/mqtt/publish', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+              throw new Error(`Error sending record ${counter + 1}: ${response.statusText}`);
+            }
+            console.log(`Record ${counter + 1} sent successfully`);
+          } catch (error) {
+            console.error(error);
+          }
+  
+          counter++;
+        }, 1000); // Interval set to 5000ms (5 seconds)
+      };
+  
+      sendPostRequests();
+    }
+  }, [selectedGroup, selectedTopic]);
+  // Handle group and topic changes
   const handleGroupChange = (event) => {
+    setRealTimeData([]);
     const groupName = event.target.value;
     setSelectedGroup(groupName);
     setSelectedTopic('');
@@ -64,6 +117,41 @@ const Dashboard = () => {
 
   const handleChartTypeChange = (event) => {
     setChartType(event.target.value);
+  };
+
+  // Download CSV function
+  const downloadCSV = () => {
+    // Include headers for CSV
+    const headers = ['Timestamp', ...Object.keys(realTimeData[0]).filter(key => key !== 'timestamp')];
+    
+    // Convert realTimeData to CSV format
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(',') + '\n'
+      + realTimeData.map(row => {
+          return [
+            row.timestamp.toLocaleTimeString(), // Ensure timestamp is formatted as needed
+            ...headers.slice(1).map(header => row[header])
+          ].join(',');
+        }).join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'real-time-data.csv');
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  // Handle scroll event to load more rows
+  const handleScroll = () => {
+    const tableWrapper = tableRef.current;
+    if (tableWrapper) {
+      const { scrollTop, scrollHeight, clientHeight } = tableWrapper;
+      if (scrollTop + clientHeight >= scrollHeight) {
+        // User has scrolled to the bottom, load more rows
+        setDisplayCount(displayCount + 8);
+      }
+    }
   };
 
   if (isLoading) {
@@ -93,6 +181,7 @@ const Dashboard = () => {
             </option>
           ))}
         </select>
+        
         <h5 style={{marginTop:"5px", padding: "0",width:"8rem",marginLeft:"5%",marginRight:"1%"}}>Select Chart Type</h5>
         <select onChange={handleChartTypeChange} value={chartType}>
           <option value='line'>Line</option>
@@ -109,14 +198,47 @@ const Dashboard = () => {
 
       <div className='chartContainer'>
         {selectedGroup && selectedTopic ? (
-          <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} />
+          <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} setRealTimeData={setRealTimeData} />
         ) : (
           <h1 style={{marginTop:"28%"}}>
             {selectedGroup ? "Please select the Sensor's topic above" : "Please select the Sensor's group and topic above"}
           </h1>
         )}
       </div>
+      <button className='download-button' onClick={downloadCSV} disabled={realTimeData.length === 0} hidden={realTimeData.length === 0}>
+            Download CSV
+        </button>
+        
+      
+      {/* Real-time Data Table */}
+      <div className='realTimeDataTable' hidden={realTimeData.length === 0}>
+        {/* Download CSV Button */}
+        
+        <div className='tableWrapper' ref={tableRef} onScroll={handleScroll} style={{ width: '100%', overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                {realTimeData.length > 0 && Object.keys(realTimeData[0]).map((key) => (
+                  key !== 'timestamp' && <th key={key}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {realTimeData.slice(0, displayCount).map((data, index) => (
+                <tr key={index}>
+                  <td>{data.timestamp.toLocaleTimeString()}</td>
+                  {Object.keys(data).map((key) => (
+                    key !== 'timestamp' && <td key={key}>{data[key]}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
+      {/* Admin Options */}
       {user?.userType === 'IS_ADMIN' && (
         <div className='adminOptions'>
           <Link to='/add_assign_machine' className='dash-link'>
