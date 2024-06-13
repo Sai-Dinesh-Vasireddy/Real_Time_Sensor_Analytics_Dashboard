@@ -62,21 +62,22 @@ jobs:
       - setup_remote_docker:
           version: 20.10.7
       - run:
-          name: Build and push Docker images
+          name: Build the Java Jars
           command: |
-            cd RealTimeSensorDataAnalyticsBackend | ./gradlew build
+            cd RealTimeSensorDataAnalyticsBackend && ./gradlew build && cd ..
       - run:
-          name: Build and push Docker images PWD
+          name: Test the Jar exists
           command: |
-            cd .. | ls RealTimeSensorDataAnalyticsBackend/build/libs
+            ls RealTimeSensorDataAnalyticsBackend/build/libs
       - run:
-          name: Test the ~/javaArtifacts
+          name: Run the docker compose up command
           command: |
-            ls /home/circleci/javaArtifacts
+            docker compose --env-file dockerConfif.env build
       - run:
-          name: Test the ~/artifacts
+          name: check the docker images
           command: |
-            ls /home/circleci/artifacts
+            docker images
+
 workflows:
   build-and-test:
     jobs:
