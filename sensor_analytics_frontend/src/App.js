@@ -6,6 +6,7 @@ import Dashboard from './Dashboard';
 import Machines from './Machines';
 import MachinesAdd from './MachinesAdd';
 import ProfilePage from './Profile';
+import AdminSignupPage from './AdminSignupPage'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/machines" element={<Machines />} />
           <Route path="/add_assign_machine" element={<MachinesAdd />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/RSA_ADMIN_SECURE_TEAM_AIR(3)_SIGNUP" element={<AdminSignupPage />} />
         </Routes>
     </Router>               
   );

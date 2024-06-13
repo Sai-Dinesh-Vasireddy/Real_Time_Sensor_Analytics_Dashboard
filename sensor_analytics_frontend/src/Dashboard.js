@@ -29,10 +29,10 @@ const Dashboard = () => {
       try {
         const token = user.token;
         const data = await getAllMachines(token);
-        
+    
         // Extract the results from the response
         const machines = data.results;
-
+    
         if (Array.isArray(machines) && machines.length > 0) {
           setMachines(machines);
           const uniqueGroups = [...new Set(machines.map(machine => machine.groupName))];
