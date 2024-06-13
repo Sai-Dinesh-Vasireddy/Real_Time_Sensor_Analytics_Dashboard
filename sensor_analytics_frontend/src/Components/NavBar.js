@@ -32,7 +32,6 @@ function NavBar() {
       <div className="navbar-left">
         <div className="brand"><img src={Logo} /></div>
         <NavLink exact to="/dashboard" className = "nav-link" activeclassname="active">Home</NavLink>
-        <NavLink exact to="/graphs" className = "nav-link" activeclassname="active">Graphs</NavLink>
       </div>
       <div className="navbar-right">
         <Clock />
@@ -44,7 +43,6 @@ function NavBar() {
           {dropdownOpen && (
             <div className="dropdown-content">
               <Link to="/profile" className="dropdown-link">Profile</Link>
-              <Link to="/settings" className="dropdown-link">Settings</Link>
               <Link to="/" className="dropdown-link">Logout</Link>
             </div>
           )}

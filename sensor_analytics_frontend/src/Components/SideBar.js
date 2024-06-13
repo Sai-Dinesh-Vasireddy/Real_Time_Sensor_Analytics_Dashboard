@@ -7,9 +7,7 @@ function SideBar() {
   return (
     <div className="sidebar">
       <Link to="/dashboard" className="sidebar-link"><FaHome /></Link>
-      <Link to="/graphs" className="sidebar-link"><FaChartBar /></Link>
       <Link to="/profile" className="sidebar-link"><FaUser /></Link>
-      <Link to="/settings" className="sidebar-link"><FaCog /></Link>
       <Link to="/" className="sidebar-link"><FaSignOutAlt /></Link>
     </div>
   );

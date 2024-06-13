@@ -4,7 +4,6 @@ import SignupPage from './SignupPage';
 import LoginPage from './LoginPage';
 import Dashboard from './Dashboard';
 import Machines from './Machines';
-import Graphs from './Graphs';
 import MachinesAdd from './MachinesAdd';
 import ProfilePage from './Profile';
 
@@ -17,7 +16,6 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/machines" element={<Machines />} />
           <Route path="/add_assign_machine" element={<MachinesAdd />} />
-          <Route path="/graphs" element={<Graphs />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
     </Router>               
