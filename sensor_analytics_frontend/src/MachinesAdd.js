@@ -16,35 +16,53 @@ const MachinesAdd = () => {
     const [topicNames, setTopicNames] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('');
     const [selectedTopic, setSelectedTopic] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessage1, seterrorMessage1] = useState('');
+    const [errorMessage2, seterrorMessage2] = useState('');
+    const [isTopicDropdownDisabled, setIsTopicDropdownDisabled] = useState(true); // State for topic dropdown enablement
 
     useEffect(() => {
         if (user !== null) {
-          setIsLoading(false);
-          fetchData();
+            setIsLoading(false);
+            fetchData();
         }
-    }, [user]);
+    }, [user, selectedGroup]);
 
     const fetchData = async () => {
         try {
             const data = await getAllMachines(user.token);
-            setMachineNames(data.results.map(machine => machine.groupName));
-            setTopicNames(data.results.map(machine => machine.topicName));
+            const uniqueGroups = Array.from(new Set(data.results.map(machine => machine.groupName)));
+            setMachineNames(uniqueGroups);
+            // If a group is selected, filter topics
+            if (selectedGroup) {
+                const filteredTopics = data.results
+                    .filter(machine => machine.groupName === selectedGroup)
+                    .map(machine => machine.topicName);
+                setTopicNames(filteredTopics);
+            } else {
+                // If no group selected, set empty array for topics
+                setTopicNames([]);
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
-    
-    if (isLoading) {
-        return <div>Loading...</div>; 
-    }
 
     const handleMachineAdd = async (event) => {
         event.preventDefault();
-        setErrorMessage('');
+        seterrorMessage1('');
+    
+        // Check if groupName or topicName is empty
+        if (!groupName) {
+            seterrorMessage1('Please enter Group Name');
+            return;
+        }
+        if (!topicName) {
+            seterrorMessage1('Please enter Topic Name');
+            return;
+        }
     
         const machineName = `${groupName}_${topicName}`;
-
+    
         try {
             await onboardNewSensor(groupName, topicName, machineName, user.token);
             console.log('Machine added successfully');
@@ -56,16 +74,30 @@ const MachinesAdd = () => {
             // Fetch updated data
             fetchData();
         } catch (error) {
-            setErrorMessage(error.message);
+            seterrorMessage1(error.message);
         }
     };
 
     const handleMachineAssign = async (event) => {
         event.preventDefault();
-        setErrorMessage('');
-
+        seterrorMessage2('');
+    
+        // Check if selectedGroup, selectedTopic, or userName is empty
+        if (!selectedGroup) {
+            seterrorMessage2('Please select a Group');
+            return;
+        }
+        if (!selectedTopic) {
+            seterrorMessage2('Please select a Topic');
+            return;
+        }
+        if (!userName) {
+            seterrorMessage2('Please enter Username');
+            return;
+        }
+    
         const machineName = `${selectedGroup}_${selectedTopic}`;
-
+    
         try {
             await assignMachineToUser(userName, machineName, user.token);
             console.log('Machine assigned successfully');
@@ -76,8 +108,20 @@ const MachinesAdd = () => {
             // Show success alert
             alert('Machine assigned successfully');
         } catch (error) {
-            setErrorMessage(error.message);
+            seterrorMessage2(error.message);
         }
+    };
+
+    const handleGroupChange = (e) => {
+        const selected = e.target.value;
+        setSelectedGroup(selected);
+        // Enable topic dropdown if a group is selected
+        setIsTopicDropdownDisabled(selected === '');
+        // Fetch topics for the selected group
+        const filteredTopics = selected !== ''
+            ? topicNames.filter(topic => topic.groupName === selected)
+            : [];
+        setTopicNames(filteredTopics);
     };
 
     return (
@@ -85,52 +129,52 @@ const MachinesAdd = () => {
             <NavBar />
             <SideBar />
             <div className='sensorDetails_Container'>
-                <input 
+                <input
                     name='groupName'
                     value={groupName}
                     placeholder='Enter Group Name'
                     onChange={(e) => setGroupName(e.target.value)}
                 />
 
-                <input 
+                <input
                     name='topicName'
                     value={topicName}
                     placeholder='Enter Topic Name'
                     onChange={(e) => setTopicName(e.target.value)}
                 />
-                
+
                 <button onClick={handleMachineAdd}> Add Machine </button>
-                {errorMessage && <div className="error">{errorMessage}</div>}
+                {errorMessage1 && <div className="error1">{errorMessage1}</div>}
             </div>
 
             <div className='assignSensors_Container'>
-                <select id="groups" value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
+                <select id="groups" value={selectedGroup} onChange={handleGroupChange}>
                     <option value="" disabled>Select a Group</option>
-                        {machineNames.map((machine, index) => (
+                    {machineNames.map((machine, index) => (
                         <option key={index} value={machine}>
                             {machine}
-                    </option>
+                        </option>
                     ))}
                 </select>
 
-                <select id="topics" value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)}>
+                <select id="topics" value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)} disabled={isTopicDropdownDisabled}>
                     <option value="" disabled>Select a Topic</option>
-                        {topicNames.map((topic, index) => (
+                    {topicNames.map((topic, index) => (
                         <option key={index} value={topic}>
                             {topic}
-                    </option>
+                        </option>
                     ))}
                 </select>
 
-                <input 
+                <input
                     name='Username'
                     value={userName}
                     placeholder='Enter Username'
                     onChange={(e) => setUserName(e.target.value)}
                 />
-                
+
                 <button onClick={handleMachineAssign}> Assign Machine to User </button>
-                {errorMessage && <div className="error">{errorMessage}</div>}
+                {errorMessage2 && <div className="error2">{errorMessage2}</div>}
             </div>
         </div>
     );

@@ -39,7 +39,7 @@ export const onboardNewSensor = async (groupName, topicName, machineName, token)
   });
 
   if (!response.ok) {
-    throw new Error('Failed to onboard new sensor');
+    throw new Error('Sensor Already Present');
   }
 
   return response.json();
