@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
+import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UsersMachineRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
 @RestController
@@ -39,6 +41,9 @@ public class OnBoardingSensorController {
 
     @Autowired
     public WebSocketBeans mqttWebSocketHandler;
+
+    @Autowired
+    private UsersMachineRepository usersMachineRepository;
 
     @Autowired
     public CredentialsConfBean credentialsConf;
@@ -152,8 +157,10 @@ public class OnBoardingSensorController {
         }
     }
 
-     @CrossOrigin(origins = "http://localhost:3000")
+    //DELETING A SENSOR
+    @CrossOrigin(origins = "http://localhost:3000")
     @DeleteMapping("/delete-sensor")
+    @Transactional
     public ResponseEntity<Object> deleteSensor(
             @RequestBody DeleteSensorModel deleteSensorModel,
             @RequestHeader(value = "Authorization", required = false) String token) {
@@ -180,12 +187,22 @@ public class OnBoardingSensorController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
             }
 
-            
             TopicsModel sensorToDelete = topicRepository.findByGroupNameAndTopicName(
                     deleteSensorModel.getGroupName(), deleteSensorModel.getTopicName());
 
             if (sensorToDelete != null) {
+                // Delete sensor from database
                 topicRepository.delete(sensorToDelete);
+
+                // Unsubscribe from MQTT
+                IMqttClient mqttClient = MqttBrokerCallBacksAutoBeans.getInstance(
+                        credentialsConf.getMqttServerURL(), credentialsConf.getServerID(),
+                        credentialsConf.getUsername(), credentialsConf.getPassword());
+                mqttClient.unsubscribe(sensorToDelete.getMachineName());
+
+                // Delete from users' assigned machines
+                usersMachineRepository.deleteByMachineId(sensorToDelete.getId());
+
                 result.put("message", "Sensor deleted successfully");
                 return ResponseEntity.status(HttpStatus.OK).body(result);
             } else {
@@ -198,6 +215,7 @@ public class OnBoardingSensorController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
+
 
 }
 
