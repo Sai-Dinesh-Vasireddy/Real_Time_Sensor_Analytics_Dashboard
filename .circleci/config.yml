@@ -58,6 +58,8 @@ jobs:
     docker:
       - image: docker:20.10.7
     steps:
+      - attach_workspace:
+          at: ~/workspace
       - checkout
       - setup_remote_docker:
           version: 20.10.7
