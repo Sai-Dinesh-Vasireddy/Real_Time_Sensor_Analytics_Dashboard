@@ -1,14 +1,28 @@
-import {React, useContext} from 'react';
+import {React, useContext, useState, useEffect} from 'react';
 import './Styles/Profile.css';
 import NavBar from './Components/NavBar';
 import SideBar from './Components/SideBar';
 import { UserContext } from './UserContext';
+import { useNavigate } from 'react-router-dom';
 
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  const [username, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (user == null) {
+        navigate('/');
+      } else {
+        setUserName(user.username);
+        setEmail(user.email);
+      }
+    }, 0);
+}, [user]);
 
-  return (
+return (
     <div>
         <NavBar />
         <SideBar />
@@ -20,7 +34,7 @@ const Profile = () => {
             <input
             type="text"
             id="username"
-            value={user.username}
+            value={username}
             disabled
             />
         </div>
@@ -29,7 +43,7 @@ const Profile = () => {
             <input
             type="email"
             id="email"
-            value={user.email}
+            value={email}
             disabled
             />
         </div>

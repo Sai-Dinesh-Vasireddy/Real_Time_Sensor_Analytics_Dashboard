@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -17,10 +18,12 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConf
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.constants.UserEnum;
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.DeleteSensorModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
+import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UsersMachineRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.utils.JwtTokenUtil;
 
 @RestController
@@ -38,6 +41,9 @@ public class OnBoardingSensorController {
 
     @Autowired
     public WebSocketBeans mqttWebSocketHandler;
+
+    @Autowired
+    private UsersMachineRepository usersMachineRepository;
 
     @Autowired
     public CredentialsConfBean credentialsConf;
@@ -151,4 +157,66 @@ public class OnBoardingSensorController {
         }
     }
 
+    //DELETING A SENSOR
+    @CrossOrigin(origins = "http://localhost:3000")
+    @DeleteMapping("/delete-sensor")
+    @Transactional
+    public ResponseEntity<Object> deleteSensor(
+            @RequestBody DeleteSensorModel deleteSensorModel,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+
+        Map<String, String> result = new HashMap<>();
+
+        if (token == null) {
+            result.put("message", "Authorization Token Is required to Proceed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+
+        String realToken = token.substring(7);
+        boolean tokenCheckResult = jwtTokenUtil.validateToken(realToken);
+
+        if (!tokenCheckResult) {
+            result.put("message", "Invalid Authorization Token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+
+        try {
+            UsersModel user = userRepository.findByUsername(jwtTokenUtil.getUsernameFromToken(realToken));
+            if (user == null || !user.getUserType().equals(UserEnum.IS_ADMIN.toString())) {
+                result.put("message", "Unauthorized: Only admins can delete sensors");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+
+            TopicsModel sensorToDelete = topicRepository.findByGroupNameAndTopicName(
+                    deleteSensorModel.getGroupName(), deleteSensorModel.getTopicName());
+
+            if (sensorToDelete != null) {
+                // Delete sensor from database
+                topicRepository.delete(sensorToDelete);
+
+                // Unsubscribe from MQTT
+                IMqttClient mqttClient = MqttBrokerCallBacksAutoBeans.getInstance(
+                        credentialsConf.getMqttServerURL(), credentialsConf.getServerID(),
+                        credentialsConf.getUsername(), credentialsConf.getPassword());
+                mqttClient.unsubscribe(sensorToDelete.getMachineName());
+
+                // Delete from users' assigned machines
+                usersMachineRepository.deleteByMachineId(sensorToDelete.getId());
+
+                result.put("message", "Sensor deleted successfully");
+                return ResponseEntity.status(HttpStatus.OK).body(result);
+            } else {
+                result.put("message", "Sensor not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+            }
+
+        } catch (Exception e) {
+            result.put("message", "Failed to delete sensor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
+    }
+
+
 }
+
+

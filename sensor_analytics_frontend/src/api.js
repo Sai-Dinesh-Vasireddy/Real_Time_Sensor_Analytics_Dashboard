@@ -28,6 +28,20 @@ export const register = async (name, username, email, password) => {
   return response.json();
 };
 
+export const registerAdmin = async (name, username, email, password) => {
+  const response = await fetch(`${API_URL}/register-admin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, username, email, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Signup failed with status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
 export const onboardNewSensor = async (groupName, topicName, machineName, token) => {
   const response = await fetch(`${API_URL}/onboard-new-sensor`, {
     method: 'POST',
@@ -39,7 +53,7 @@ export const onboardNewSensor = async (groupName, topicName, machineName, token)
   });
 
   if (!response.ok) {
-    throw new Error('Failed to onboard new sensor');
+    throw new Error('Sensor Already Present');
   }
 
   return response.json();
@@ -72,6 +86,23 @@ export const getAllMachines = async (token) => {
 
   if (!response.ok) {
     throw new Error('Failed to fetch machines');
+  }
+
+  return response.json();
+};
+
+export const deleteMachine = async (machineId, groupName, topicName, token) => {
+  const response = await fetch(`${API_URL}/delete-sensor`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ groupName, topicName }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete machine');
   }
 
   return response.json();

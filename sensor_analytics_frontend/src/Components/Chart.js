@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Line } from 'react-chartjs-2';
+import { useState, useEffect } from "react";
+import { Line, Bar } from 'react-chartjs-2';
 import useWebSocket from 'react-use-websocket';
 import {
     Chart as ChartJS,
@@ -7,6 +7,7 @@ import {
     LinearScale,
     PointElement,
     LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend,
@@ -14,76 +15,67 @@ import {
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
-// Register Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend,
     TimeScale
 );
 
-const WSS_FEED_URL = "ws://localhost:8080/topic?groupName=SLU&topicName=ECM";
-
-const Chart = () => {
+const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
     const [useWebsocketData, setUseWebsocketData] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
-        datasets: [
-            {
-                label: 'RPM',
-                data: [],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            },
-        ],
+        datasets: [],
     });
 
+    const colorPalette = [
+        'rgba(75, 192, 192, 1)',
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)',
+    ];
+
     const processMessages = (event) => {
-      try{
-        const parsedData = JSON.parse(event.data);
-        const rpm = parsedData.rpm;
-        
-        const timestamp = new Date();
-        if (rpm==null) {
-          timestamp = null;
+        try {
+            const parsedData = JSON.parse(event.data);
+            const timestamp = new Date();
+
+            setUseWebsocketData((prevData) => {
+                const updatedData = [...prevData, { ...parsedData, timestamp }];
+                updateChart(updatedData);
+                return updatedData;
+            });
+        } catch (e) {
+            console.log("Data is not in format of Json");
         }
-
-        setUseWebsocketData((prevData) => {
-          const updatedData = [...prevData, { rpm, timestamp }];
-          updateChart(updatedData);
-          return updatedData;
-      });
-
-        
-
-      } catch (e) {
-        console.log("Data is not in format of Json")
-      }
-      
-      
-        
     };
-
-    
 
     const updateChart = (data) => {
-        setChartData((prevData) => ({
-            ...prevData,
+        const datasetNames = Object.keys(data[0]).filter(key => key !== 'timestamp');
+
+        setChartData({
             labels: data.map(item => item.timestamp),
-            datasets: [
-                {
-                    ...prevData.datasets[0],
-                    data: data.map(item => item.rpm),
-                },
-            ],
-        }));
+            datasets: datasetNames.map((name, index) => ({
+                label: name,
+                data: data.map(item => item[name]),
+                borderColor: colorPalette[index % colorPalette.length],
+                backgroundColor: colorPalette[index % colorPalette.length].replace('1)', '0.2)'),
+            })),
+        });
+
+        // Pass real-time data to parent component (Dashboard)
+        setRealTimeData(data);
     };
 
-    useWebSocket(WSS_FEED_URL, {
+    useWebSocket(`ws://localhost:8080/topic?groupName=${groupName}&topicName=${topicName}`, {
         onOpen: () => console.log('WebSocket connection opened.'),
         onClose: () => console.log('WebSocket connection closed.'),
         shouldReconnect: (closeEvent) => true,
@@ -111,16 +103,23 @@ const Chart = () => {
             y: {
                 title: {
                     display: true,
-                    text: 'RPM'
+                    text: 'Values'
                 }
             }
         }
     };
 
+    const chartComponents = {
+        line: Line,
+        bar: Bar,
+    };
+
+    const ChartComponent = chartComponents[chartType] || Line;
+
     return (
         <div>
-            <h1 style={{color : "white"}}>Real-Time Machine RPM Chart</h1>
-            <Line data={chartData} options={options} />
+            <h4 style={{color : "white"}}>Real-Time Machine Data Chart</h4>
+            <ChartComponent data={chartData} options={options} />
         </div>
     );
 };
