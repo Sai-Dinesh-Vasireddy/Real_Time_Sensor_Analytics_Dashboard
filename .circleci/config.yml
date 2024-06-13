@@ -72,7 +72,7 @@ jobs:
       - run:
           name: Run the docker compose up command
           command: |
-            docker compose --env-file dockerConfif.env build
+            docker compose --env-file dockerConfig.env build
       - run:
           name: check the docker images
           command: |
