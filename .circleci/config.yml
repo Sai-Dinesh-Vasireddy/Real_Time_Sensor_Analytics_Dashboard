@@ -67,6 +67,7 @@ jobs:
           name: Build and push Docker images
           command: |
             ls -al
+            pwd
       - run:
           name: Test the ~/javaArtifacts
           command: |
