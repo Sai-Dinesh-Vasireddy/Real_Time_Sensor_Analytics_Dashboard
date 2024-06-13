@@ -90,3 +90,20 @@ export const getAllMachines = async (token) => {
 
   return response.json();
 };
+
+export const deleteMachine = async (machineId, groupName, topicName, token) => {
+  const response = await fetch(`${API_URL}/delete-sensor`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ groupName, topicName }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete machine');
+  }
+
+  return response.json();
+};
