@@ -68,11 +68,11 @@ jobs:
       - run:
           name: Test the ~/javaArtifacts
           command: |
-            ls ~/javaArtifacts
+            ls /home/circleci/javaArtifacts
       - run:
           name: Test the ~/artifacts
           command: |
-            ls ~/artifacts
+            ls /home/circleci/artifacts
 workflows:
   build-and-test:
     jobs:
