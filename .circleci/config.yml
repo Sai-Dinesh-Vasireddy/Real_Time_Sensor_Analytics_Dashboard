@@ -86,12 +86,14 @@ jobs:
       - run:
           name: Authenticate with Docker Hub
           command: |
-            echo "$DOCKERHUB_PASS" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+            echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
       - run:
-          name: Push Docker Image to Docker Hub
+          name: Tag docker images frontend
           command: |
-            ls -al
-      #      docker push $DOCKERHUB_USERNAME/myapp:${CIRCLE_SHA1}
+            docker tag project-frontend:latest laxvadnala/realtimeanalytics-frontend:latest
+            docker tag project-backend:latest laxvadnala/realtimeanalytics-backend:latest
+            docker push laxvadnala/realtimeanalytics-backend:latest
+            docker push laxvadnala/realtimeanalytics-frontend:latest
 
 workflows:
   build-and-test:
