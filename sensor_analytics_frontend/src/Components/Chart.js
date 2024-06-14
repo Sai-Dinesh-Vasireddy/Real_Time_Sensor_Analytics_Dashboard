@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Line, Bar, Radar, Pie, Doughnut } from 'react-chartjs-2';
+import { useState, useEffect } from "react";
+import { Line, Bar } from 'react-chartjs-2';
 import useWebSocket from 'react-use-websocket';
 import {
     Chart as ChartJS,
@@ -27,7 +27,7 @@ ChartJS.register(
     TimeScale
 );
 
-const Chart = ({ groupName, topicName, chartType }) => {
+const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
     const [useWebsocketData, setUseWebsocketData] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
@@ -46,10 +46,48 @@ const Chart = ({ groupName, topicName, chartType }) => {
     const processMessages = (event) => {
         try {
             const parsedData = JSON.parse(event.data);
+
             const timestamp = new Date();
 
             setUseWebsocketData((prevData) => {
-                const updatedData = [...prevData, { ...parsedData, timestamp }];
+                let recievedData = { ...parsedData, timestamp };
+                let updatedData = [];
+                if(prevData.length>0){ 
+                    let recievedKeys = Object.keys(recievedData); 
+                    let prevDataKeys = Object.keys(prevData[0]);
+                    let newKey = recievedKeys.filter((element) => !prevDataKeys.includes(element));
+                    let newData = new Array();
+                    if(newKey.length>0){
+                        for(let i = 0; i<prevData.length; i++){
+                            let temp = prevData[i];
+                            for(let j=0; j<newKey.length; j++){
+                                temp[newKey[j]] = 0;
+                            }
+                            newData.push(temp);
+                        }
+
+                        // check if recieved data have all the keys
+                        newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
+                        if(newKey.length>0){
+                            for(let i=0; i<newKey.length; i++){
+                                recievedData[newKey[i]] = 0;
+                            }
+                        }
+                        updatedData = [...newData, recievedData];
+                    } else {
+                        // check if the recievedData have all the keys
+                        let newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
+                        if(newKey.length>0){
+                            for(let i=0; i<newKey.length; i++){
+                                recievedData[newKey[i]] = 0;
+                            }
+                        }
+                        updatedData = [...prevData, recievedData];
+                    }
+                } else {
+                    updatedData = [recievedData];
+                }
+                
                 updateChart(updatedData);
                 return updatedData;
             });
@@ -70,6 +108,9 @@ const Chart = ({ groupName, topicName, chartType }) => {
                 backgroundColor: colorPalette[index % colorPalette.length].replace('1)', '0.2)'),
             })),
         });
+
+        // Pass real-time data to parent component (Dashboard)
+        setRealTimeData(data);
     };
 
     useWebSocket(`ws://localhost:8080/topic?groupName=${groupName}&topicName=${topicName}`, {
@@ -115,7 +156,7 @@ const Chart = ({ groupName, topicName, chartType }) => {
 
     return (
         <div>
-            <h1 style={{color : "white"}}>Real-Time Machine Data Chart</h1>
+            <h4 style={{color : "white"}}>Real-Time Machine Data Chart</h4>
             <ChartComponent data={chartData} options={options} />
         </div>
     );
