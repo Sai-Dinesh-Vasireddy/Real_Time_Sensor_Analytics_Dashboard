@@ -11,6 +11,8 @@ function Machines() {
   const { user, loading } = useContext(UserContext);
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [machineToDelete, setMachineToDelete] = useState(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -43,13 +45,27 @@ function Machines() {
     }
   };
 
-  const handleDelete = async (machineId, groupName, topicName) => {
+  const handleDeleteClick = (machine) => {
+    setMachineToDelete(machine);
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await deleteMachine(machineId, groupName, topicName, user.token);
-      setMachines(machines.filter(machine => machine.id !== machineId));
+      await deleteMachine(machineToDelete.id, machineToDelete.groupName, machineToDelete.topicName, user.token);
+      setMachines(machines.filter(machine => machine.id !== machineToDelete.id));
+      setShowConfirm(false);
+      setMachineToDelete(null);
     } catch (err) {
       setError('Failed to delete machine');
+      setShowConfirm(false);
+      setMachineToDelete(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirm(false);
+    setMachineToDelete(null);
   };
 
   return (
@@ -79,7 +95,7 @@ function Machines() {
                     <>
                       {machine?.users.length > 0 ? (<td>{machine.users.join(', ')}</td>) : (<td>No User Assigned</td>)}
                       <td>
-                        <button onClick={() => handleDelete(machine.id, machine.groupName, machine.topicName)}>Delete</button>
+                        <button onClick={() => handleDeleteClick(machine)}>Delete</button>
                       </td>
                     </>
                   )}
@@ -99,6 +115,17 @@ function Machines() {
           </tbody>
         </table>
       </div>
+
+      {showConfirm && (
+        <div className="confirm-popup">
+          <div className="confirm-popup-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete {machineToDelete.machineName}?</p>
+            <button onClick={handleConfirmDelete}>Yes, Delete</button>
+            <button onClick={handleCancelDelete}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
