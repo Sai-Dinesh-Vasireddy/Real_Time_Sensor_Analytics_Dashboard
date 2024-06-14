@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 function Machines() {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, loading } = useContext(UserContext);
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
 
@@ -20,9 +20,18 @@ function Machines() {
         fetchMachines();
       }
     }, 100);
+    if (!loading) {
+      const timeout = setTimeout(() => {
+        if (user == null) {
+          navigate('/');
+        }
+      }, 0);
+      return () => clearTimeout(timeout);
+    }
 
     return () => clearTimeout(timeout); // Cleanup timeout to prevent memory leaks
-  }, [user, machines]);
+    
+  }, [user, machines, loading]);
 
   const fetchMachines = async () => {
     try {

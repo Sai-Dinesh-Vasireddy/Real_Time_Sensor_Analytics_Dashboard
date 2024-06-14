@@ -12,7 +12,7 @@ import { getAllMachines } from './api'; // Assuming this is the correct path to 
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, loading } = useContext(UserContext);
   const [machines, setMachines] = useState([]);
   const [groups, setGroups] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -47,17 +47,23 @@ const Dashboard = () => {
         setMachines([]);
       }
     };
+    
 
-    const timeout = setTimeout(() => {
-      if (user == null) {
-        navigate('/');
+    if (!loading) {
+      const timeout = setTimeout(() => {
+        if (user == null) {
+          navigate('/');
+        }
+      }, 0);
+
+      if (user !== null) {
+        
+        fetchMachines();
       }
-    }, 0);
 
-    if (user !== null) {
-      fetchMachines();
+      return () => clearTimeout(timeout);
     }
-  }, [user]);
+  }, [user, loading]);
 
   useEffect(() => {
     if (selectedGroup && selectedTopic) {

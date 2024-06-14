@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 const MachinesAdd = () => {
     const navigate = useNavigate();
-    const { user } = useContext(UserContext);
+    const { user, loading } = useContext(UserContext);
     const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
     const [userNames, setUserNames] = useState([]);
@@ -31,7 +31,15 @@ const MachinesAdd = () => {
                 fetchData();
             }
           }, 100);
-    }, [user, selectedGroup]);
+          if (!loading) {
+            const timeout = setTimeout(() => {
+              if (user == null) {
+                navigate('/');
+              }
+            }, 0);
+            return () => clearTimeout(timeout);
+          }
+    }, [user, selectedGroup, loading]);
 
     const fetchData = async () => {
         try {
