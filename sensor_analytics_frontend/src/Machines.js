@@ -22,7 +22,7 @@ function Machines() {
     }, 100);
 
     return () => clearTimeout(timeout); // Cleanup timeout to prevent memory leaks
-  }, [user]);
+  }, [user, machines]);
 
   const fetchMachines = async () => {
     try {
@@ -43,8 +43,6 @@ function Machines() {
     }
   };
 
-
-
   return (
     <div className='pageContainer'>
       <NavBar />
@@ -57,6 +55,7 @@ function Machines() {
               <th>Machine Name</th>
               <th>Topic Name</th>
               <th>Group Name</th>
+              {user?.userType === 'IS_ADMIN' && <th>Users</th>}
               {user?.userType === 'IS_ADMIN' && <th>Actions</th>}
             </tr>
           </thead>
@@ -68,16 +67,19 @@ function Machines() {
                   <td>{machine.topicName}</td>
                   <td>{machine.groupName}</td>
                   {user?.userType === 'IS_ADMIN' && (
-                    <td>
-                      <button onClick={() => handleDelete(machine.id, machine.groupName, machine.topicName)}>Delete</button>
-                    </td>
+                    <>
+                      {machine?.users.length > 0 ? (<td>{machine.users.join(', ')}</td>) : (<td>No User Assigned</td>)}
+                      <td>
+                        <button onClick={() => handleDelete(machine.id, machine.groupName, machine.topicName)}>Delete</button>
+                      </td>
+                    </>
                   )}
                 </tr>
               ))
             ) : (
               user?.userType === 'IS_ADMIN' ? (
                 <tr>
-                  <td colSpan="4" style={{ color: "black", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>NO MACHINES ON BOARDED</td>
+                  <td colSpan="5" style={{ color: "black", textAlign: "center", fontWeight: "bold", fontSize: "20px" }}>NO MACHINES ON BOARDED</td>
                 </tr>
               ) : (
                 <tr>
@@ -88,7 +90,6 @@ function Machines() {
           </tbody>
         </table>
       </div>
-      
     </div>
   );
 }
