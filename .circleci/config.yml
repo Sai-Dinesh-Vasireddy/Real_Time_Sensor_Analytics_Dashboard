@@ -4,8 +4,8 @@ version: 2.1
 orbs:
   node: circleci/node@5
 jobs:
-  build-node:
-    # Build node project
+  test-node:
+    # Install node dependencies and run tests
     executor: node/default
     working_directory: ~/project/sensor_analytics_frontend
     steps:
@@ -14,21 +14,9 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          name: Set CI environment variable to false
-          command: echo 'export CI=false' >> $BASH_ENV
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  build-java:
+          name: Run tests
+          command: npm test --passWithNoTests
+  test-java:
     docker:
       - image: cimg/openjdk:17.0
     working_directory: ~/project/RealTimeSensorDataAnalyticsBackend
@@ -43,17 +31,15 @@ jobs:
       - restore_cache:
           key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
       - run:
-          command: ./gradlew build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/javaArtifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy javaArtifacts
-          command: cp -R build/libs/*.jar ~/javaArtifacts 2>/dev/null || true
+          command: ./gradlew test
+      - store_test_results:
+          path: build/test-results
+      - save_cache:
+          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
+          paths:
+            - ~/.gradle/caches
       - store_artifacts:
-          path: ~/javaArtifacts
-          destination: java-build
+          path: build/reports
   build-and-push:
     docker:
       - image: cimg/openjdk:17.0
@@ -88,20 +74,25 @@ jobs:
           command: |
             echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USERNAME --password-stdin
       - run:
-          name: Tag docker images frontend
+          name: Tag the docker containers with latest tag
           command: |
-            docker tag project-frontend:latest laxvadnala/realtimeanalytics-frontend:latest
-            docker tag project-backend:latest laxvadnala/realtimeanalytics-backend:latest
-            docker push laxvadnala/realtimeanalytics-backend:latest
-            docker push laxvadnala/realtimeanalytics-frontend:latest
+            docker tag project-frontend:latest laxvadnala/realtimeanalytics-frontend:${CIRCLE_SHA1}
+            docker tag project-backend:latest laxvadnala/realtimeanalytics-backend:${CIRCLE_SHA1}
+      - run:
+          name: Push the docker containers to docker hub
+          command: |
+            docker push laxvadnala/realtimeanalytics-backend:${CIRCLE_SHA1}
+            docker push laxvadnala/realtimeanalytics-frontend:${CIRCLE_SHA1}
 
 workflows:
   build-and-test:
     jobs:
-      - build-node
-      - build-java
+      - test-node
+      - test-java
       - build-and-push:
           requires:
-            - build-node
-            - build-java
-
+            - test-node
+            - test-java
+          filters:
+            branches:
+              only: main
