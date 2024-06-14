@@ -3,13 +3,13 @@ package com.psd.RealTimeSensorDataAnalyticsBackend.controllers;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -18,8 +18,8 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.CredentialsConf
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.MqttBrokerCallBacksAutoBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.configurations.WebSocketBeans;
 import com.psd.RealTimeSensorDataAnalyticsBackend.constants.UserEnum;
-import com.psd.RealTimeSensorDataAnalyticsBackend.models.DeleteSensorModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.TopicsModel;
+import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersMachineModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersModel;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.TopicRepository;
 import com.psd.RealTimeSensorDataAnalyticsBackend.repository.UserRepository;
@@ -140,12 +140,36 @@ public class OnBoardingSensorController {
                 UsersModel user = userRepository.findByUsername(userName);
                 if(user.getUserType().equals(UserEnum.IS_ADMIN.toString())){
                     List<TopicsModel> allTopics = topicRepository.findAll();
+                    List<Map<String, Object>> resultData = new ArrayList<>();
+                    for(TopicsModel topicDetails : allTopics){
+                        List<UsersMachineModel> userMachines= usersMachineRepository.findByMachineName(topicDetails.getMachineName());
+                        if(Objects.nonNull(userMachines)){
+                            Map<String, Object> tempData = new HashMap<>();
+                            tempData.put("topicName", topicDetails.getTopicName());
+                            tempData.put("groupName", topicDetails.getGroupName());
+                            tempData.put("machineName", topicDetails.getMachineName());
+                            List<String> usernamesMachinesAssignedTo = new ArrayList<>();
+                            for(UsersMachineModel userMachineModelDataQueried : userMachines){
+                                usernamesMachinesAssignedTo.add(userMachineModelDataQueried.getUsername());
+                            }
+                            tempData.put("users", usernamesMachinesAssignedTo);
+                            resultData.add(tempData);
+                        }
+                    }
                     result.put("message", "success");
-                    result.put("results", allTopics);
+                    result.put("results", resultData);
                     return ResponseEntity.status(HttpStatus.OK).body(result);
                 } else {
-                    result.put("message", "User is not Admin to get all machines");
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                    // return non user data
+                    List<UsersMachineModel> resultData = usersMachineRepository.findByUsername(user.getUsername());
+                    List<TopicsModel> resultDataTopics = new ArrayList<>();
+                    for (UsersMachineModel usersMachineModel : resultData){
+                        TopicsModel temp = topicRepository.findByMachineName(usersMachineModel.getMachineName());
+                        resultDataTopics.add(temp);
+                    }
+                    result.put("message", "success for user!");
+                    result.put("results", resultDataTopics);
+                    return ResponseEntity.status(HttpStatus.OK).body(result);
                 }
             } else {
                 result.put("message", "authorizaiton token is invalid");
@@ -162,7 +186,7 @@ public class OnBoardingSensorController {
     @DeleteMapping("/delete-sensor")
     @Transactional
     public ResponseEntity<Object> deleteSensor(
-            @RequestBody DeleteSensorModel deleteSensorModel,
+            @RequestBody TopicsModel deleteSensorModel,
             @RequestHeader(value = "Authorization", required = false) String token) {
 
         Map<String, String> result = new HashMap<>();
@@ -201,7 +225,7 @@ public class OnBoardingSensorController {
                 mqttClient.unsubscribe(sensorToDelete.getMachineName());
 
                 // Delete from users' assigned machines
-                usersMachineRepository.deleteByMachineId(sensorToDelete.getId());
+                usersMachineRepository.deleteByMachineName(sensorToDelete.getMachineName());
 
                 result.put("message", "Sensor deleted successfully");
                 return ResponseEntity.status(HttpStatus.OK).body(result);

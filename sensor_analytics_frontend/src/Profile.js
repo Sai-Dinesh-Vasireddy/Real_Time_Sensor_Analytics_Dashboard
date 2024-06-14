@@ -8,9 +8,11 @@ import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, loading } = useContext(UserContext);
   const [username, setUserName] = useState('');
   const [email, setEmail] = useState('');
+
+  
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (user == null) {
@@ -20,7 +22,19 @@ const Profile = () => {
         setEmail(user.email);
       }
     }, 0);
-}, [user]);
+
+    if (!loading) {
+      const timeout = setTimeout(() => {
+        if (user == null) {
+          navigate('/');
+        }
+      }, 0);
+      return () => clearTimeout(timeout);
+    }
+}, [user, loading]);
+
+
+  
 
 return (
     <div>

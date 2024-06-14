@@ -8,5 +8,6 @@ import com.psd.RealTimeSensorDataAnalyticsBackend.models.UsersMachineModel;
 @Repository
 public interface UsersMachineRepository extends JpaRepository<UsersMachineModel, Long> {
     List<UsersMachineModel> findByUsername(String username);
-    void deleteByMachineId(Long machineId);
+    void deleteByMachineName(String machineName);
+    List<UsersMachineModel> findByMachineName(String machineName);
 }

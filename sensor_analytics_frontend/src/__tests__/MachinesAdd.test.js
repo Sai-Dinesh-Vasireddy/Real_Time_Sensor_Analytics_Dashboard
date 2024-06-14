@@ -85,7 +85,8 @@ describe('Components inside the Machine assigning division', () => {
             </MemoryRouter>
         );
 
-        expect(screen.getByPlaceholderText("Enter Username")).toBeInTheDocument();
+        const selectElement = screen.getByDisplayValue('Select a UserName');
+        expect(selectElement).toBeInTheDocument();
     });
 
     test('Contains the button for assigning the machine', () => {

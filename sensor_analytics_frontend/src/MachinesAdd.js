@@ -4,19 +4,20 @@ import SideBar from './Components/SideBar';
 // import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import './Styles/MachinesAddPage.css';
-import { onboardNewSensor, assignMachineToUser, getAllMachines } from './api';
+import { onboardNewSensor, assignMachineToUser, getAllMachines, getAllUsers } from './api';
 import { useNavigate } from 'react-router-dom';
 
 const MachinesAdd = () => {
     const navigate = useNavigate();
-    const { user } = useContext(UserContext);
+    const { user, loading } = useContext(UserContext);
     const [groupName, setGroupName] = useState('');
     const [topicName, setTopicName] = useState('');
-    const [userName, setUserName] = useState('');
+    const [userNames, setUserNames] = useState([]);
     const [machineNames, setMachineNames] = useState([]);
     const [topicNames, setTopicNames] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('');
     const [selectedTopic, setSelectedTopic] = useState('');
+    const [selectedUserName, setSelectedUserName] = useState('');
     const [errorMessage1, seterrorMessage1] = useState('');
     const [errorMessage2, seterrorMessage2] = useState('');
     const [isTopicDropdownDisabled, setIsTopicDropdownDisabled] = useState(true); // State for topic dropdown enablement
@@ -30,11 +31,20 @@ const MachinesAdd = () => {
                 fetchData();
             }
           }, 100);
-    }, [user, selectedGroup]);
+          if (!loading) {
+            const timeout = setTimeout(() => {
+              if (user == null) {
+                navigate('/');
+              }
+            }, 0);
+            return () => clearTimeout(timeout);
+          }
+    }, [user, selectedGroup, loading]);
 
     const fetchData = async () => {
         try {
             const data = await getAllMachines(user.token);
+            const userData = await getAllUsers(user.token);
             const uniqueGroups = Array.from(new Set(data.results.map(machine => machine.groupName)));
             setMachineNames(uniqueGroups);
             // If a group is selected, filter topics
@@ -43,9 +53,14 @@ const MachinesAdd = () => {
                     .filter(machine => machine.groupName === selectedGroup)
                     .map(machine => machine.topicName);
                 setTopicNames(filteredTopics);
+
+                const filteredUsers = userData.results
+                    .map(user => user.username);
+                setUserNames(filteredUsers);
             } else {
                 // If no group selected, set empty array for topics
                 setTopicNames([]);
+                setUserNames([]);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -83,6 +98,8 @@ const MachinesAdd = () => {
         }
     };
 
+
+
     const handleMachineAssign = async (event) => {
         event.preventDefault();
         seterrorMessage2('');
@@ -96,20 +113,20 @@ const MachinesAdd = () => {
             seterrorMessage2('Please select a Topic');
             return;
         }
-        if (!userName) {
-            seterrorMessage2('Please enter Username');
+        if (!selectedUserName) {
+            seterrorMessage2('Please select Username');
             return;
         }
     
         const machineName = `${selectedGroup}_${selectedTopic}`;
     
         try {
-            await assignMachineToUser(userName, machineName, user.token);
+            await assignMachineToUser(selectedUserName, machineName, user.token);
             console.log('Machine assigned successfully');
             // Reset input values
             setSelectedGroup('');
             setSelectedTopic('');
-            setUserName('');
+            setSelectedUserName('');
             // Show success alert
             alert('Machine assigned successfully');
         } catch (error) {
@@ -174,12 +191,14 @@ const MachinesAdd = () => {
                     ))}
                 </select>
 
-                <input
-                    name='Username'
-                    value={userName}
-                    placeholder='Enter Username'
-                    onChange={(e) => setUserName(e.target.value)}
-                />
+                <select id="topics" value={selectedUserName} onChange={(e) => setSelectedUserName(e.target.value)} disabled={isTopicDropdownDisabled}>
+                    <option value="" disabled>Select a UserName</option>
+                    {userNames.map((topic, index) => (
+                        <option key={index} value={topic}>
+                            {topic}
+                        </option>
+                    ))}
+                </select>
 
                 <button onClick={handleMachineAssign}> Assign Machine to User </button>
                 {errorMessage2 && <div className="error2">{errorMessage2}</div>}

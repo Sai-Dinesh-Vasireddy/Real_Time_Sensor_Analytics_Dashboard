@@ -91,6 +91,21 @@ export const getAllMachines = async (token) => {
   return response.json();
 };
 
+export const getAllUsers = async (token) => {
+  const response = await fetch(`${API_URL}/get-all-users`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch machines');
+  }
+
+  return response.json();
+};
+
 export const deleteMachine = async (machineId, groupName, topicName, token) => {
   const response = await fetch(`${API_URL}/delete-sensor`, {
     method: 'DELETE',
