@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Line, Bar } from 'react-chartjs-2';
 import useWebSocket from 'react-use-websocket';
 import {
@@ -27,7 +27,7 @@ ChartJS.register(
     TimeScale
 );
 
-const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
+const Chart = ({ groupName, topicName, chartType, setRealTimeData, isChartReset, handleChartReset }) => {
     const [useWebsocketData, setUseWebsocketData] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
@@ -43,42 +43,45 @@ const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
         'rgba(255, 159, 64, 1)',
     ];
 
+    const socketUrl = `ws://localhost:8080/topic?groupName=${groupName}&topicName=${topicName}`;
+
     const processMessages = (event) => {
         try {
             const parsedData = JSON.parse(event.data);
-
             const timestamp = new Date();
 
             setUseWebsocketData((prevData) => {
+                if (isChartReset) {
+                    prevData = [];
+                    handleChartReset();
+                }
                 let recievedData = { ...parsedData, timestamp };
                 let updatedData = [];
-                if(prevData.length>0){ 
+                if(prevData.length > 0){ 
                     let recievedKeys = Object.keys(recievedData); 
                     let prevDataKeys = Object.keys(prevData[0]);
                     let newKey = recievedKeys.filter((element) => !prevDataKeys.includes(element));
-                    let newData = new Array();
-                    if(newKey.length>0){
-                        for(let i = 0; i<prevData.length; i++){
+                    let newData = [];
+                    if(newKey.length > 0){
+                        for(let i = 0; i < prevData.length; i++){
                             let temp = prevData[i];
-                            for(let j=0; j<newKey.length; j++){
+                            for(let j = 0; j < newKey.length; j++){
                                 temp[newKey[j]] = 0;
                             }
                             newData.push(temp);
                         }
 
-                        // check if recieved data have all the keys
                         newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
-                        if(newKey.length>0){
-                            for(let i=0; i<newKey.length; i++){
+                        if(newKey.length > 0){
+                            for(let i = 0; i < newKey.length; i++){
                                 recievedData[newKey[i]] = 0;
                             }
                         }
                         updatedData = [...newData, recievedData];
                     } else {
-                        // check if the recievedData have all the keys
-                        let newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
-                        if(newKey.length>0){
-                            for(let i=0; i<newKey.length; i++){
+                        newKey = prevDataKeys.filter((element) => !recievedKeys.includes(element));
+                        if(newKey.length > 0){
+                            for(let i = 0; i < newKey.length; i++){
                                 recievedData[newKey[i]] = 0;
                             }
                         }
@@ -92,7 +95,7 @@ const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
                 return updatedData;
             });
         } catch (e) {
-            console.log("Data is not in format of Json");
+            console.log("Data is not in format of JSON");
         }
     };
 
@@ -113,14 +116,24 @@ const Chart = ({ groupName, topicName, chartType, setRealTimeData }) => {
         setRealTimeData(data);
     };
 
-    useWebSocket(`ws://localhost:8080/topic?groupName=${groupName}&topicName=${topicName}`, {
+    const { lastJsonMessage, sendJsonMessage, getWebSocket } = useWebSocket(socketUrl, {
         onOpen: () => console.log('WebSocket connection opened.'),
         onClose: () => console.log('WebSocket connection closed.'),
         shouldReconnect: (closeEvent) => true,
         reconnectInterval: 3000,
         reconnectAttempts: 1,
         onMessage: processMessages,
+        share: true, // Share the WebSocket connection between components
     });
+
+    useEffect(() => {
+        const currentWebSocket = getWebSocket();
+        return () => {
+            if (currentWebSocket) {
+                currentWebSocket.close();
+            }
+        };
+    }, [socketUrl]);
 
     const options = {
         scales: {

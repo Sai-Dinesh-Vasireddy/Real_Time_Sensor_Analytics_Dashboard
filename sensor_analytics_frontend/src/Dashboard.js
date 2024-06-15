@@ -11,8 +11,9 @@ import { faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { getAllMachines } from './api'; // Assuming this is the correct path to the API function
 
 const Dashboard = () => {
+  const intervalIdRef = useRef(null);
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, loading } = useContext(UserContext);
   const [machines, setMachines] = useState([]);
   const [groups, setGroups] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -22,9 +23,12 @@ const Dashboard = () => {
   const [realTimeData, setRealTimeData] = useState([]);
   const [displayCount, setDisplayCount] = useState(100); // Number of records to display 
   const [loadedCount, setLoadedCount] = useState(0); // Number of records already loaded
+  const [chartReset, setChartReset] = useState(false); //variable to define the chart/graph state to change it when needed
   const tableRef = useRef(null);
 
-
+  const handleChartReset = () => {
+    setChartReset(false);
+  };
 
   useEffect(() => {
     const fetchMachines = async () => {
@@ -47,17 +51,23 @@ const Dashboard = () => {
         setMachines([]);
       }
     };
+    
 
-    const timeout = setTimeout(() => {
-      if (user == null) {
-        navigate('/');
+    if (!loading) {
+      const timeout = setTimeout(() => {
+        if (user == null) {
+          navigate('/');
+        }
+      }, 0);
+
+      if (user !== null) {
+        
+        fetchMachines();
       }
-    }, 0);
 
-    if (user !== null) {
-      fetchMachines();
+      return () => clearTimeout(timeout);
     }
-  }, [user]);
+  }, [user, loading]);
 
   useEffect(() => {
     if (selectedGroup && selectedTopic) {
@@ -69,11 +79,12 @@ const Dashboard = () => {
           // Stop the interval after 100 iterations
           if (counter >= 100) {
             clearInterval(intervalId);
+            intervalIdRef.current = null; // Clear the ref
             return;
           }
 
           // Generate random values for rpm and utilization
-          const rpm = Math.floor(Math.random() * 50) + 1; // random value between 0 and 100
+          const rpm = Math.floor(Math.random() * 50) + 1; // random value between 1 and 50
           const utilization = Math.floor(Math.random() * 51) + 50; // random value between 50 and 100 (including 100)
 
           const payload = {
@@ -101,11 +112,27 @@ const Dashboard = () => {
 
           counter++;
         }, 1000); // Interval set to 1000ms (1 second)
+
+        // Store the interval ID in the ref
+        intervalIdRef.current = intervalId;
       };
+
+      // Clear the previous interval if it exists
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+      }
 
       sendPostRequests();
     }
-  }, [selectedGroup, selectedTopic]);
+
+    // Cleanup function to clear the interval on unmount or dependencies change
+    return () => {
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+      }
+    };
+  }, [selectedGroup, selectedTopic, chartReset]);
+  
   // Handle group and topic changes
   const handleGroupChange = (event) => {
     setRealTimeData([]);
@@ -118,6 +145,9 @@ const Dashboard = () => {
   };
 
   const handleTopicChange = (event) => {
+    if (selectedTopic != "") {
+      setChartReset(true);
+    }
     setSelectedTopic(event.target.value);
   };
 
@@ -200,7 +230,7 @@ const Dashboard = () => {
           </select>
         </div>
         {selectedGroup && selectedTopic ? (
-          <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} setRealTimeData={setRealTimeData} />
+          <Chart groupName={selectedGroup} topicName={selectedTopic} chartType={chartType} setRealTimeData={setRealTimeData} isChartReset = {chartReset} handleChartReset={handleChartReset} />
         ) : (
           <h1 style={{ marginTop: "25%" }}>
             {selectedGroup ? "Please select the Sensor's topic above" : "Please select the Sensor's group and topic above"}

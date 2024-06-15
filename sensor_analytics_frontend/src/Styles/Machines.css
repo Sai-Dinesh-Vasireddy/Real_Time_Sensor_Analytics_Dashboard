@@ -41,3 +41,19 @@ th,  td {
   tr {
     width: 80%;
   }
+
+.confirm-popup {
+    position: absolute;
+    padding: 20px;
+    width: 20%;
+    top: 40%;
+    left: 35%;
+    background-color: #ffffff;
+    border: 5px solid rgba(255, 0, 0, 0.685);
+    border-radius: 20px;
+}
+
+.confirm-popup button {
+    margin-bottom:20px;
+    border: 1px solid blue;
+}
