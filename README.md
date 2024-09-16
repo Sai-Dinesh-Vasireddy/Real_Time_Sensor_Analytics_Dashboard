@@ -1,3 +1,6 @@
+# This is a copy of the project posted on my personal github and original project we built can be found here : [https://github.com/LaxminarayanaV7416/RealTimeSensorDataAnalytics](url)
+
+
 # Factory Pulse: Machinery Health Monitoring System - RealTimeSensorDataAnalyticsDashBoard
 
 [![FrontEnd Docker Hub](https://img.shields.io/badge/Docker%20Hub%20Frontend-LatestBuild:dc4ce8fd3d5d2cffa9cb4847c23363f86772571c-blue.svg)](
